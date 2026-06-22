@@ -1,0 +1,30 @@
+{
+  "name": "mvpilot",
+  "version": "1.0.0",
+  "description": "MVPilot - веб-приложение для проработки продуктовой идеи и формирования MVP.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MaximYurkov/mvpilot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/MaximYurkov/mvpilot/issues"
+  },
+  "homepage": "https://github.com/MaximYurkov/mvpilot#readme",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.8",
+    "prettier": "^3.8.4"
+  }
+}
