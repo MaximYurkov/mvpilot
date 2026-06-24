@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from app.db.models import Case
 from app.db.session import get_db
-from app.schemas.cases import CaseCreate, CaseRead
+from app.schemas.cases import CaseCreate, CaseRead, CaseUpdate
 
 router = APIRouter(prefix='/cases', tags=['cases'])
 
@@ -33,3 +33,40 @@ def get_case(case_id: int, db: Session = Depends(get_db)):
         )
 
     return case
+
+
+@router.patch('/{case_id}', response_model=CaseRead)
+def update_case(case_id: int, case_data: CaseUpdate, db: Session = Depends(get_db)):
+    case = db.query(Case).filter(Case.id == case_id).first()
+
+    if case is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Case not found',
+        )
+
+    update_data = case_data.model_dump(exclude_unset=True)
+
+    for field, value in update_data.items():
+        setattr(case, field, value)
+
+    db.commit()
+    db.refresh(case)
+
+    return case
+
+
+@router.delete('/{case_id}', status_code=status.HTTP_204_NO_CONTENT)
+def delete_case(case_id: int, db: Session = Depends(get_db)):
+    case = db.query(Case).filter(Case.id == case_id).first()
+
+    if case is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Case not found',
+        )
+
+    db.delete(case)
+    db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
