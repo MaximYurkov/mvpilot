@@ -7,3 +7,4 @@ dist/
 frontend/dist/
 .env
 .env.local
+*.db
