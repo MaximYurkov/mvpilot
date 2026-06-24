@@ -10,6 +10,13 @@ class CaseCreate(BaseModel):
     problem: str | None = None
 
 
+class CaseUpdate(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    audience: str | None = None
+    problem: str | None = None
+
+
 class CaseRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
