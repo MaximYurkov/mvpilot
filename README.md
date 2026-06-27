@@ -15,3 +15,4 @@ mvpilot/
   frontend/
   backend/
   docs/
+```

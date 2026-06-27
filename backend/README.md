@@ -4,10 +4,10 @@ Backend-часть проекта MVPilot.
 
 ## Стек
 
-* Python
-* FastAPI
-* LangGraph
-* SQLite
+- Python
+- FastAPI
+- LangGraph
+- SQLite
 
 ## Локальный запуск
 
