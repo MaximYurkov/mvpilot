@@ -38,6 +38,12 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
+Применить миграции базы данных:
+
+```powershell
+alembic upgrade head
+```
+
 Запустить сервер:
 
 ```powershell
@@ -94,6 +100,29 @@ Mock-анализ не обращается к внешним сервисам. 
 * Markdown-версию итогового продуктового кейса.
 
 Формат каждого раздела описан Pydantic-схемами и отображается в Swagger.
+
+## Миграции базы данных
+
+Alembic хранит последовательность изменений структуры БД в
+`migrations/versions/`.
+
+Показать текущую версию базы:
+
+```powershell
+alembic current
+```
+
+Создать миграцию после изменения SQLAlchemy-моделей:
+
+```powershell
+alembic revision --autogenerate -m "описание изменения"
+```
+
+Проверить созданный файл миграции и применить его:
+
+```powershell
+alembic upgrade head
+```
 
 ## Тесты
 

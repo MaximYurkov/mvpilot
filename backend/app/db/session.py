@@ -1,7 +1,9 @@
+import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = 'sqlite:///./mvpilot.db'
+DATABASE_URL = os.getenv('MVPILOT_DATABASE_URL', 'sqlite:///./mvpilot.db')
 
 engine = create_engine(
     DATABASE_URL,
