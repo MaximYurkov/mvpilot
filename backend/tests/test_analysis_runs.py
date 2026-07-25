@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from fastapi import HTTPException
+from pydantic import ValidationError
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -14,6 +15,7 @@ from app.api.analysis_runs import (
 from app.core.analysis import AnalysisStatus
 from app.db.base import Base
 from app.db.models import AnalysisRun, Case
+from app.schemas.analysis_runs import AnalysisReport
 
 
 class AnalysisRunsTestCase(unittest.TestCase):
@@ -42,22 +44,57 @@ class AnalysisRunsTestCase(unittest.TestCase):
         self.db.close()
         self.engine.dispose()
 
-    def test_analysis_run_is_completed_and_can_be_read(self):
+    def test_completed_run_contains_full_valid_report(self):
         created_run = create_analysis_run(self.case.id, self.db)
+        report = AnalysisReport.model_validate(created_run.result)
 
         self.assertEqual(created_run.status, AnalysisStatus.COMPLETED.value)
         self.assertIsNotNone(created_run.started_at)
         self.assertIsNotNone(created_run.finished_at)
-        self.assertEqual(
-            created_run.result['target_audience'],
-            self.case.audience,
-        )
+        self.assertEqual(report.target_audience, self.case.audience)
+        self.assertGreaterEqual(len(report.jtbd), 1)
+        self.assertGreaterEqual(len(report.mvp), 1)
+        self.assertGreaterEqual(len(report.backlog), 1)
+        self.assertGreaterEqual(len(report.roadmap), 1)
+        self.assertGreaterEqual(len(report.risks), 1)
+        self.assertIn('## Lean Canvas', report.final_report_markdown)
+        self.assertIn('## Критика', report.final_report_markdown)
 
         fetched_run = get_analysis_run(created_run.id, self.db)
         case_runs = get_case_analysis_runs(self.case.id, self.db)
 
         self.assertEqual(fetched_run.id, created_run.id)
         self.assertEqual([run.id for run in case_runs], [created_run.id])
+
+    def test_report_contract_rejects_missing_sections(self):
+        with self.assertRaises(ValidationError):
+            AnalysisReport.model_validate({'summary': 'Неполный отчёт'})
+
+    def test_report_contract_rejects_empty_required_lists(self):
+        created_run = create_analysis_run(self.case.id, self.db)
+        invalid_result = {**created_run.result, 'jtbd': []}
+
+        with self.assertRaises(ValidationError):
+            AnalysisReport.model_validate(invalid_result)
+
+    def test_missing_case_details_are_marked_as_hypotheses(self):
+        incomplete_case = Case(
+            title='Новая идея',
+            description='Краткое описание идеи.',
+            audience=None,
+            problem=None,
+        )
+        self.db.add(incomplete_case)
+        self.db.commit()
+        self.db.refresh(incomplete_case)
+
+        created_run = create_analysis_run(incomplete_case.id, self.db)
+        report = AnalysisReport.model_validate(created_run.result)
+
+        self.assertIn('ещё не определён', report.target_audience)
+        self.assertIn('требует уточнения', report.problem)
+        self.assertGreaterEqual(len(report.critic_review.issues), 4)
+        self.assertGreaterEqual(len(report.risks), 5)
 
     def test_unknown_case_returns_404(self):
         with self.assertRaises(HTTPException) as error:
