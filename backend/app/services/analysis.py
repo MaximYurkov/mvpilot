@@ -1,3 +1,4 @@
+from app.core.analysis import AnalysisStageName
 from app.core.cases import CaseStage
 from app.db.models import Case
 from app.schemas.analysis_runs import (
@@ -256,6 +257,42 @@ def build_mock_report(case: Case) -> AnalysisReport:
         recommendations=recommendations,
         final_report_markdown=final_report_markdown,
     )
+
+
+def build_mock_stage_results(
+    report: AnalysisReport,
+) -> dict[AnalysisStageName, dict[str, object]]:
+    return {
+        AnalysisStageName.PLANNER: {
+            'analysis_plan': report.analysis_plan,
+            'assumptions': report.assumptions,
+        },
+        AnalysisStageName.MARKET_ANALYST: {
+            'problem': report.problem,
+            'target_audience': report.target_audience,
+            'audience_segments': [
+                segment.model_dump(mode='json')
+                for segment in report.audience_segments
+            ],
+            'risks': [risk.model_dump(mode='json') for risk in report.risks],
+        },
+        AnalysisStageName.PRODUCT_MANAGER: {
+            'value_proposition': report.value_proposition,
+            'jtbd': [item.model_dump(mode='json') for item in report.jtbd],
+            'lean_canvas': report.lean_canvas.model_dump(mode='json'),
+            'mvp': [feature.model_dump(mode='json') for feature in report.mvp],
+            'backlog': [item.model_dump(mode='json') for item in report.backlog],
+            'roadmap': [stage.model_dump(mode='json') for stage in report.roadmap],
+        },
+        AnalysisStageName.CRITIC: {
+            'critic_review': report.critic_review.model_dump(mode='json'),
+            'recommendations': report.recommendations,
+        },
+        AnalysisStageName.EDITOR: {
+            'summary': report.summary,
+            'final_report_markdown': report.final_report_markdown,
+        },
+    }
 
 
 def _build_mock_markdown(

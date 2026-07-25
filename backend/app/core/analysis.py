@@ -6,3 +6,11 @@ class AnalysisStatus(str, Enum):
     RUNNING = 'running'
     COMPLETED = 'completed'
     FAILED = 'failed'
+
+
+class AnalysisStageName(str, Enum):
+    PLANNER = 'planner'
+    MARKET_ANALYST = 'market_analyst'
+    PRODUCT_MANAGER = 'product_manager'
+    CRITIC = 'critic'
+    EDITOR = 'editor'
