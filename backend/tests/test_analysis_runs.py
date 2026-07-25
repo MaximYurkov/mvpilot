@@ -13,6 +13,7 @@ from app.api.analysis_runs import (
     get_case_analysis_runs,
 )
 from app.core.analysis import AnalysisStatus
+from app.core.cases import CaseStage
 from app.db.base import Base
 from app.db.models import AnalysisRun, Case
 from app.schemas.analysis_runs import AnalysisReport
@@ -34,6 +35,8 @@ class AnalysisRunsTestCase(unittest.TestCase):
             description='Помогает составлять меню на неделю.',
             audience='Занятые люди',
             problem='Не хватает времени на планирование рациона',
+            stage=CaseStage.PROTOTYPE.value,
+            analysis_goal='Проверить состав MVP',
         )
         self.db.add(case)
         self.db.commit()
@@ -57,6 +60,8 @@ class AnalysisRunsTestCase(unittest.TestCase):
         self.assertGreaterEqual(len(report.backlog), 1)
         self.assertGreaterEqual(len(report.roadmap), 1)
         self.assertGreaterEqual(len(report.risks), 1)
+        self.assertIn('прототип', report.summary)
+        self.assertIn('Проверить состав MVP', report.analysis_plan[0])
         self.assertIn('## Lean Canvas', report.final_report_markdown)
         self.assertIn('## Критика', report.final_report_markdown)
 

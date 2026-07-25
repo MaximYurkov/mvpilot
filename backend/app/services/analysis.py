@@ -1,3 +1,4 @@
+from app.core.cases import CaseStage
 from app.db.models import Case
 from app.schemas.analysis_runs import (
     AnalysisReport,
@@ -13,10 +14,23 @@ from app.schemas.analysis_runs import (
     RoadmapStage,
 )
 
+CASE_STAGE_LABELS = {
+    CaseStage.IDEA.value: 'идея',
+    CaseStage.VALIDATION.value: 'проверка гипотез',
+    CaseStage.PROTOTYPE.value: 'прототип',
+    CaseStage.MVP.value: 'MVP',
+    CaseStage.LAUNCHED.value: 'запущенный продукт',
+}
+
 
 def build_mock_report(case: Case) -> AnalysisReport:
     audience = case.audience or 'Первый узкий сегмент пользователей ещё не определён.'
     problem = case.problem or 'Проблема пользователя требует уточнения.'
+    stage = CASE_STAGE_LABELS.get(case.stage, case.stage)
+    analysis_goal = (
+        case.analysis_goal
+        or 'Получить структурированный черновик продуктового кейса.'
+    )
     value_proposition = (
         f'{case.title} помогает аудитории «{audience}» решить следующую проблему: '
         f'{problem.lower()}'
@@ -26,8 +40,10 @@ def build_mock_report(case: Case) -> AnalysisReport:
         'Описание аудитории и её потребностей пока является гипотезой.',
         'Рыночные выводы не подтверждены внешними источниками.',
         'Состав MVP нужно проверить интервью и прототипом.',
+        f'Текущая стадия проекта указана как «{stage}».',
     ]
     analysis_plan = [
+        f'Учесть цель анализа: {analysis_goal}',
         'Уточнить проблему и сегменты целевой аудитории.',
         'Проверить ценностное предложение и сформулировать JTBD.',
         'Определить Lean Canvas, состав MVP и продуктовые метрики.',
@@ -205,6 +221,8 @@ def build_mock_report(case: Case) -> AnalysisReport:
     )
     final_report_markdown = _build_mock_markdown(
         case=case,
+        stage=stage,
+        analysis_goal=analysis_goal,
         audience=audience,
         problem=problem,
         value_proposition=value_proposition,
@@ -219,7 +237,9 @@ def build_mock_report(case: Case) -> AnalysisReport:
     )
 
     return AnalysisReport(
-        summary=f'«{case.title}» — продуктовая идея: {case.description}',
+        summary=(
+            f'«{case.title}» — продукт на стадии «{stage}»: {case.description}'
+        ),
         analysis_plan=analysis_plan,
         assumptions=assumptions,
         problem=problem,
@@ -241,6 +261,8 @@ def build_mock_report(case: Case) -> AnalysisReport:
 def _build_mock_markdown(
     *,
     case: Case,
+    stage: str,
+    analysis_goal: str,
     audience: str,
     problem: str,
     value_proposition: str,
@@ -268,6 +290,10 @@ def _build_mock_markdown(
 ## Описание
 
 {case.description}
+
+Текущая стадия: {stage}
+
+Цель анализа: {analysis_goal}
 
 ## Проблема
 

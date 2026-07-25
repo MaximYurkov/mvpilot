@@ -4,6 +4,7 @@ from sqlalchemy import JSON, DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.analysis import AnalysisStatus
+from app.core.cases import CaseStage
 from app.db.base import Base
 
 
@@ -19,6 +20,12 @@ class Case(Base):
     description: Mapped[str] = mapped_column(Text, nullable=False)
     audience: Mapped[str | None] = mapped_column(Text, nullable=True)
     problem: Mapped[str | None] = mapped_column(Text, nullable=True)
+    stage: Mapped[str] = mapped_column(
+        String(50),
+        default=CaseStage.IDEA.value,
+        nullable=False,
+    )
+    analysis_goal: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
