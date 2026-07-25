@@ -4,7 +4,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.core.analysis import AnalysisStatus
+from app.core.analysis import AnalysisStageName, AnalysisStatus
 
 NonEmptyText = Annotated[str, Field(min_length=1)]
 NonEmptyTextList = Annotated[list[NonEmptyText], Field(min_length=1)]
@@ -96,6 +96,19 @@ class AnalysisReport(BaseModel):
     final_report_markdown: NonEmptyText
 
 
+class AnalysisStageRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: AnalysisStageName
+    position: int
+    status: AnalysisStatus
+    result: dict[str, object] | None
+    error_message: str | None
+    started_at: datetime | None
+    finished_at: datetime | None
+
+
 class AnalysisRunRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -106,3 +119,4 @@ class AnalysisRunRead(BaseModel):
     error_message: str | None
     started_at: datetime | None
     finished_at: datetime | None
+    stages: list[AnalysisStageRead]

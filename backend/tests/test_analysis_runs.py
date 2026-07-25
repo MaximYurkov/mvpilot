@@ -12,10 +12,10 @@ from app.api.analysis_runs import (
     get_analysis_run,
     get_case_analysis_runs,
 )
-from app.core.analysis import AnalysisStatus
+from app.core.analysis import AnalysisStageName, AnalysisStatus
 from app.core.cases import CaseStage
 from app.db.base import Base
-from app.db.models import AnalysisRun, Case
+from app.db.models import AnalysisRun, AnalysisStage, Case
 from app.schemas.analysis_runs import AnalysisReport
 
 
@@ -64,12 +64,26 @@ class AnalysisRunsTestCase(unittest.TestCase):
         self.assertIn('Проверить состав MVP', report.analysis_plan[0])
         self.assertIn('## Lean Canvas', report.final_report_markdown)
         self.assertIn('## Критика', report.final_report_markdown)
+        self.assertEqual(
+            [stage.name for stage in created_run.stages],
+            [stage_name.value for stage_name in AnalysisStageName],
+        )
+
+        for position, stage in enumerate(created_run.stages, start=1):
+            self.assertEqual(stage.position, position)
+            self.assertEqual(stage.status, AnalysisStatus.COMPLETED.value)
+            self.assertIsNotNone(stage.result)
+            self.assertIsNotNone(stage.started_at)
+            self.assertIsNotNone(stage.finished_at)
+            self.assertIsNone(stage.error_message)
 
         fetched_run = get_analysis_run(created_run.id, self.db)
         case_runs = get_case_analysis_runs(self.case.id, self.db)
 
         self.assertEqual(fetched_run.id, created_run.id)
+        self.assertEqual(len(fetched_run.stages), 5)
         self.assertEqual([run.id for run in case_runs], [created_run.id])
+        self.assertEqual(len(case_runs[0].stages), 5)
 
     def test_report_contract_rejects_missing_sections(self):
         with self.assertRaises(ValidationError):
@@ -122,11 +136,30 @@ class AnalysisRunsTestCase(unittest.TestCase):
                 create_analysis_run(self.case.id, self.db)
 
         failed_run = self.db.query(AnalysisRun).one()
+        failed_stages = (
+            self.db.query(AnalysisStage)
+            .order_by(AnalysisStage.position)
+            .all()
+        )
 
         self.assertEqual(error.exception.status_code, 500)
         self.assertEqual(failed_run.status, AnalysisStatus.FAILED.value)
         self.assertEqual(failed_run.error_message, 'Test analyzer error')
         self.assertIsNotNone(failed_run.finished_at)
+        self.assertEqual(len(failed_stages), 5)
+        self.assertEqual(failed_stages[0].name, AnalysisStageName.PLANNER.value)
+        self.assertEqual(
+            failed_stages[0].status,
+            AnalysisStatus.FAILED.value,
+        )
+        self.assertEqual(failed_stages[0].error_message, 'Test analyzer error')
+
+        for pending_stage in failed_stages[1:]:
+            self.assertEqual(
+                pending_stage.status,
+                AnalysisStatus.PENDING.value,
+            )
+            self.assertIsNone(pending_stage.started_at)
 
 
 if __name__ == '__main__':

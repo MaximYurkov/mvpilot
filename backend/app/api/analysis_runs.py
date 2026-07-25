@@ -4,11 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from app.core.analysis import AnalysisStatus
-from app.db.models import AnalysisRun, Case
+from app.core.analysis import AnalysisStageName, AnalysisStatus
+from app.db.models import AnalysisRun, AnalysisStage, Case
 from app.db.session import get_db
 from app.schemas.analysis_runs import AnalysisRunRead
-from app.services.analysis import build_mock_report
+from app.services.analysis import build_mock_report, build_mock_stage_results
 
 router = APIRouter(tags=['analysis-runs'])
 
@@ -36,7 +36,13 @@ def get_case_or_404(case_id: int, db: Session) -> Case:
 )
 def create_analysis_run(case_id: int, db: Session = Depends(get_db)):
     case = get_case_or_404(case_id, db)
-    analysis_run = AnalysisRun(case_id=case.id)
+    analysis_run = AnalysisRun(
+        case_id=case.id,
+        stages=[
+            AnalysisStage(name=stage_name.value, position=position)
+            for position, stage_name in enumerate(AnalysisStageName, start=1)
+        ],
+    )
 
     try:
         db.add(analysis_run)
@@ -49,15 +55,37 @@ def create_analysis_run(case_id: int, db: Session = Depends(get_db)):
             detail='Could not create analysis run',
         ) from exc
 
+    current_stage_id: int | None = None
+
     try:
         analysis_run.status = AnalysisStatus.RUNNING.value
         analysis_run.started_at = utc_now()
         db.commit()
 
-        report = build_mock_report(case)
+        report = None
+        stage_results = None
+
+        for analysis_stage in analysis_run.stages:
+            current_stage_id = analysis_stage.id
+            analysis_stage.status = AnalysisStatus.RUNNING.value
+            analysis_stage.started_at = utc_now()
+            db.commit()
+
+            if report is None:
+                report = build_mock_report(case)
+                stage_results = build_mock_stage_results(report)
+
+            stage_name = AnalysisStageName(analysis_stage.name)
+            analysis_stage.result = stage_results[stage_name]
+            analysis_stage.status = AnalysisStatus.COMPLETED.value
+            analysis_stage.finished_at = utc_now()
+            db.commit()
+
+        if report is None:
+            raise RuntimeError('Analysis report was not created')
 
         analysis_run.status = AnalysisStatus.COMPLETED.value
-        analysis_run.result = report.model_dump()
+        analysis_run.result = report.model_dump(mode='json')
         analysis_run.finished_at = utc_now()
         db.commit()
         db.refresh(analysis_run)
@@ -69,6 +97,13 @@ def create_analysis_run(case_id: int, db: Session = Depends(get_db)):
             failed_run.status = AnalysisStatus.FAILED.value
             failed_run.error_message = str(exc) or type(exc).__name__
             failed_run.finished_at = utc_now()
+
+            if current_stage_id is not None:
+                failed_stage = db.get(AnalysisStage, current_stage_id)
+                if failed_stage is not None:
+                    failed_stage.status = AnalysisStatus.FAILED.value
+                    failed_stage.error_message = str(exc) or type(exc).__name__
+                    failed_stage.finished_at = utc_now()
 
             try:
                 db.commit()

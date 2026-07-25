@@ -27,7 +27,12 @@ class MigrationsTestCase(unittest.TestCase):
 
             self.assertEqual(
                 set(inspector.get_table_names()),
-                {'alembic_version', 'analysis_runs', 'cases'},
+                {
+                    'alembic_version',
+                    'analysis_runs',
+                    'analysis_stages',
+                    'cases',
+                },
             )
             self.assertEqual(
                 {column['name'] for column in inspector.get_columns('cases')},
@@ -55,6 +60,29 @@ class MigrationsTestCase(unittest.TestCase):
                     'finished_at',
                 },
             )
+            self.assertEqual(
+                {
+                    column['name']
+                    for column in inspector.get_columns('analysis_stages')
+                },
+                {
+                    'id',
+                    'analysis_run_id',
+                    'name',
+                    'position',
+                    'status',
+                    'result',
+                    'error_message',
+                    'started_at',
+                    'finished_at',
+                },
+            )
+            self.assertEqual(
+                inspector.get_foreign_keys('analysis_stages')[0][
+                    'referred_table'
+                ],
+                'analysis_runs',
+            )
             engine.dispose()
 
             self.run_alembic('check', environment=environment)
@@ -66,6 +94,7 @@ class MigrationsTestCase(unittest.TestCase):
 
             self.assertNotIn('cases', downgraded_tables)
             self.assertNotIn('analysis_runs', downgraded_tables)
+            self.assertNotIn('analysis_stages', downgraded_tables)
 
     def run_alembic(self, *arguments: str, environment: dict[str, str]) -> None:
         result = subprocess.run(

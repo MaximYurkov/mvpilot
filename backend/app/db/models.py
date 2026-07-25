@@ -1,9 +1,9 @@
 from datetime import UTC, datetime
 
-from sqlalchemy import JSON, DateTime, ForeignKey, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import JSON, DateTime, ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.core.analysis import AnalysisStatus
+from app.core.analysis import AnalysisStageName, AnalysisStatus
 from app.core.cases import CaseStage
 from app.db.base import Base
 
@@ -48,3 +48,38 @@ class AnalysisRun(Base):
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     started_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    stages: Mapped[list['AnalysisStage']] = relationship(
+        back_populates='analysis_run',
+        cascade='all, delete-orphan',
+        order_by='AnalysisStage.position',
+        lazy='selectin',
+    )
+
+
+class AnalysisStage(Base):
+    __tablename__ = 'analysis_stages'
+    __table_args__ = (
+        UniqueConstraint(
+            'analysis_run_id',
+            'name',
+            name='uq_analysis_stages_run_name',
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    analysis_run_id: Mapped[int] = mapped_column(
+        ForeignKey('analysis_runs.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+    name: Mapped[str] = mapped_column(String(50), nullable=False)
+    position: Mapped[int] = mapped_column(nullable=False)
+    status: Mapped[str] = mapped_column(
+        String(50),
+        default=AnalysisStatus.PENDING.value,
+        nullable=False,
+    )
+    result: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    analysis_run: Mapped[AnalysisRun] = relationship(back_populates='stages')
