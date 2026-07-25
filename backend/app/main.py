@@ -2,11 +2,11 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.api.analysis_runs import router as analysis_runs_router
 from app.api.cases import router as cases_router
 from app.api.health import router as health_router
 from app.db.base import Base
 from app.db.session import engine
-from app.api.analysis_runs import router as analysis_runs_router
 
 
 @asynccontextmanager

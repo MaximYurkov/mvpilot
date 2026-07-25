@@ -6,8 +6,11 @@ Backend-часть проекта MVPilot.
 
 * Python
 * FastAPI
-* LangGraph
 * SQLite
+* SQLAlchemy
+
+Мультиагентная система и LangGraph пока не подключены. Анализ выполняется
+локальной mock-функцией без LLM.
 
 ## Локальный запуск
 
@@ -51,4 +54,29 @@ Swagger-документация:
 
 ```text
 http://127.0.0.1:8000/docs
+```
+
+## Mock-анализ
+
+Основной сценарий:
+
+1. Создать кейс через `POST /api/cases`.
+2. Запустить анализ через `POST /api/cases/{case_id}/analysis-runs`.
+3. Получить запуск через `GET /api/analysis-runs/{run_id}`.
+
+Все запуски одного кейса можно получить через:
+
+```text
+GET /api/cases/{case_id}/analysis-runs
+```
+
+Mock-анализ не обращается к внешним сервисам. Он сразу формирует тестовый
+структурированный отчёт и сохраняет его в SQLite.
+
+## Тесты
+
+Из папки `backend` выполнить:
+
+```powershell
+python -m unittest discover -s tests -v
 ```
