@@ -1,9 +1,11 @@
 import { Button, Card, Empty, Typography } from 'antd';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const { Title, Paragraph } = Typography;
 
 export function CasesPage() {
+  const navigate = useNavigate();
+
   return (
     <Card>
       <Title level={1}>Список кейсов</Title>
@@ -11,8 +13,8 @@ export function CasesPage() {
       <Paragraph>Здесь будут отображаться продуктовые кейсы, созданные пользователем.</Paragraph>
 
       <Empty description="Кейсов пока нет">
-        <Button type="primary">
-          <Link to="/cases/new">Создать первый кейс</Link>
+        <Button type="primary" onClick={() => navigate('/cases/new')}>
+          Создать первый кейс
         </Button>
       </Empty>
     </Card>

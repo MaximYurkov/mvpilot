@@ -1,27 +1,23 @@
 import { Layout, Menu } from 'antd';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
+
+import styles from './AppLayout.module.scss';
 
 const { Header, Content } = Layout;
 
 export function AppLayout() {
+  const { pathname } = useLocation();
+
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Header
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 32,
-        }}
-      >
-        <div style={{ color: '#fff', fontWeight: 700, fontSize: 20 }}>MVPilot</div>
+    <Layout className={styles.layout}>
+      <Header className={styles.header}>
+        <div className={styles.logo}>MVPilot</div>
 
         <Menu
+          className={styles.menu}
           theme="dark"
           mode="horizontal"
-          style={{
-            flex: 1,
-            minWidth: 0,
-          }}
+          selectedKeys={[pathname]}
           items={[
             {
               key: '/cases',
@@ -35,14 +31,7 @@ export function AppLayout() {
         />
       </Header>
 
-      <Content
-        style={{
-          maxWidth: 1100,
-          width: '100%',
-          margin: '0 auto',
-          padding: 32,
-        }}
-      >
+      <Content className={styles.content}>
         <Outlet />
       </Content>
     </Layout>

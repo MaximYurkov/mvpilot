@@ -1,22 +1,19 @@
+import { Button } from 'antd';
+import { useNavigate } from 'react-router-dom';
+
+import styles from './NotFoundPage.module.scss';
+
 export function NotFoundPage() {
+  const navigate = useNavigate();
+
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontSize: 100,
-      }}
-    >
-      <h1>404</h1>
-      <p
-        style={{
-          textAlign: 'center',
-        }}
-      >
-        Страница не обнаружена
-      </p>
+    <div className={styles.page}>
+      <h1 className={styles.code}>404</h1>
+      <p className={styles.message}>Страница не обнаружена</p>
+
+      <Button type="primary" onClick={() => navigate(-1)}>
+        Вернуться назад
+      </Button>
     </div>
   );
 }

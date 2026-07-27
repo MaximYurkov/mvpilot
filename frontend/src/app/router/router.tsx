@@ -1,10 +1,10 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 
-import { AppLayout } from '../layouts/AppLayout';
-import { CasesPage } from '../../pages/cases/ui/CasesPage';
-import { CreateCasePage } from '../../pages/create-case/ui/CreateCasePage';
-import { CaseDetailsPage } from '../../pages/case-details/ui/CaseDetailsPage';
-import { NotFoundPage } from '../../pages/not-found/ui/NotFoundPage';
+import { AppLayout } from '@/app/layouts/AppLayout';
+import { CasesPage } from '@/pages/cases/ui/CasesPage';
+import { CreateCasePage } from '@/pages/create-case/ui/CreateCasePage';
+import { CaseDetailsPage } from '@/pages/case-details/ui/CaseDetailsPage';
+import { NotFoundPage } from '@/pages/not-found/ui/NotFoundPage';
 
 export function AppRouter() {
   return (

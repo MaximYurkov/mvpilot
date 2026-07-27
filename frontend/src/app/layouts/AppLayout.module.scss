@@ -1,0 +1,30 @@
+.layout {
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  height: 64px;
+  padding: 0 28px;
+  align-items: center;
+  gap: 32px;
+}
+
+.logo {
+  flex-shrink: 0;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.menu {
+  flex: 1;
+  min-width: 0;
+}
+
+.content {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px;
+}
