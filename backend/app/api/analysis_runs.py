@@ -8,6 +8,7 @@ from app.core.analysis import AnalysisStageName, AnalysisStatus
 from app.db.models import AnalysisRun, AnalysisStage, Case
 from app.db.session import get_db
 from app.schemas.analysis_runs import AnalysisRunRead
+from app.schemas.errors import ErrorResponse
 from app.services.analysis import build_mock_report, build_mock_stage_results
 
 router = APIRouter(tags=['analysis-runs'])
@@ -34,6 +35,16 @@ def get_case_or_404(case_id: int, db: Session) -> Case:
     response_model=AnalysisRunRead,
     status_code=status.HTTP_201_CREATED,
     operation_id='createAnalysisRun',
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            'model': ErrorResponse,
+            'description': 'Case not found',
+        },
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {
+            'model': ErrorResponse,
+            'description': 'Analysis failed',
+        },
+    },
 )
 def create_analysis_run(case_id: int, db: Session = Depends(get_db)):
     case = get_case_or_404(case_id, db)
@@ -123,6 +134,12 @@ def create_analysis_run(case_id: int, db: Session = Depends(get_db)):
     '/cases/{case_id}/analysis-runs',
     response_model=list[AnalysisRunRead],
     operation_id='listCaseAnalysisRuns',
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            'model': ErrorResponse,
+            'description': 'Case not found',
+        },
+    },
 )
 def get_case_analysis_runs(case_id: int, db: Session = Depends(get_db)):
     get_case_or_404(case_id, db)
@@ -139,6 +156,12 @@ def get_case_analysis_runs(case_id: int, db: Session = Depends(get_db)):
     '/analysis-runs/{run_id}',
     response_model=AnalysisRunRead,
     operation_id='getAnalysisRun',
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            'model': ErrorResponse,
+            'description': 'Analysis run not found',
+        },
+    },
 )
 def get_analysis_run(run_id: int, db: Session = Depends(get_db)):
     analysis_run = db.get(AnalysisRun, run_id)
