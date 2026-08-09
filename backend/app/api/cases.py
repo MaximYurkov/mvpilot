@@ -8,12 +8,17 @@ from app.schemas.cases import CaseCreate, CaseRead, CaseUpdate
 router = APIRouter(prefix='/cases', tags=['cases'])
 
 
-@router.get('', response_model=list[CaseRead])
+@router.get('', response_model=list[CaseRead], operation_id='listCases')
 def get_cases(db: Session = Depends(get_db)):
     return db.query(Case).order_by(Case.created_at.desc()).all()
 
 
-@router.post('', response_model=CaseRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    '',
+    response_model=CaseRead,
+    status_code=status.HTTP_201_CREATED,
+    operation_id='createCase',
+)
 def create_case(case_data: CaseCreate, db: Session = Depends(get_db)):
     case = Case(**case_data.model_dump())
     db.add(case)
@@ -22,7 +27,11 @@ def create_case(case_data: CaseCreate, db: Session = Depends(get_db)):
     return case
 
 
-@router.get('/{case_id}', response_model=CaseRead)
+@router.get(
+    '/{case_id}',
+    response_model=CaseRead,
+    operation_id='getCase',
+)
 def get_case(case_id: int, db: Session = Depends(get_db)):
     case = db.query(Case).filter(Case.id == case_id).first()
 
@@ -35,7 +44,11 @@ def get_case(case_id: int, db: Session = Depends(get_db)):
     return case
 
 
-@router.patch('/{case_id}', response_model=CaseRead)
+@router.patch(
+    '/{case_id}',
+    response_model=CaseRead,
+    operation_id='updateCase',
+)
 def update_case(case_id: int, case_data: CaseUpdate, db: Session = Depends(get_db)):
     case = db.query(Case).filter(Case.id == case_id).first()
 
@@ -56,7 +69,11 @@ def update_case(case_id: int, case_data: CaseUpdate, db: Session = Depends(get_d
     return case
 
 
-@router.delete('/{case_id}', status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    '/{case_id}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    operation_id='deleteCase',
+)
 def delete_case(case_id: int, db: Session = Depends(get_db)):
     case = db.query(Case).filter(Case.id == case_id).first()
 
