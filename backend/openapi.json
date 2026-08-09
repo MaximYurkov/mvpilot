@@ -1,0 +1,1256 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "MVPilot API",
+    "description": "Backend API for MVPilot",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Health Check",
+        "operationId": "getHealth",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cases": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Get Cases",
+        "operationId": "listCases",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CaseRead"
+                  },
+                  "type": "array",
+                  "title": "Response Listcases"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Create Case",
+        "operationId": "createCase",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaseCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cases/{case_id}": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Get Case",
+        "operationId": "getCase",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Update Case",
+        "operationId": "updateCase",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaseUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Delete Case",
+        "operationId": "deleteCase",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cases/{case_id}/analysis-runs": {
+      "post": {
+        "tags": [
+          "analysis-runs"
+        ],
+        "summary": "Create Analysis Run",
+        "operationId": "createAnalysisRun",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisRunRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "analysis-runs"
+        ],
+        "summary": "Get Case Analysis Runs",
+        "operationId": "listCaseAnalysisRuns",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnalysisRunRead"
+                  },
+                  "title": "Response Listcaseanalysisruns"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analysis-runs/{run_id}": {
+      "get": {
+        "tags": [
+          "analysis-runs"
+        ],
+        "summary": "Get Analysis Run",
+        "operationId": "getAnalysisRun",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisRunRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Root",
+        "operationId": "getRoot",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnalysisReport": {
+        "properties": {
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Summary"
+          },
+          "analysis_plan": {
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Analysis Plan"
+          },
+          "assumptions": {
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Assumptions"
+          },
+          "problem": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Problem"
+          },
+          "target_audience": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Target Audience"
+          },
+          "audience_segments": {
+            "items": {
+              "$ref": "#/components/schemas/AudienceSegment"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Audience Segments"
+          },
+          "value_proposition": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Value Proposition"
+          },
+          "jtbd": {
+            "items": {
+              "$ref": "#/components/schemas/JTBDItem"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Jtbd"
+          },
+          "lean_canvas": {
+            "$ref": "#/components/schemas/LeanCanvas"
+          },
+          "mvp": {
+            "items": {
+              "$ref": "#/components/schemas/MVPFeature"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Mvp"
+          },
+          "backlog": {
+            "items": {
+              "$ref": "#/components/schemas/BacklogItem"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Backlog"
+          },
+          "roadmap": {
+            "items": {
+              "$ref": "#/components/schemas/RoadmapStage"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Roadmap"
+          },
+          "risks": {
+            "items": {
+              "$ref": "#/components/schemas/ProductRisk"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Risks"
+          },
+          "critic_review": {
+            "$ref": "#/components/schemas/CriticReview"
+          },
+          "recommendations": {
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Recommendations"
+          },
+          "final_report_markdown": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Final Report Markdown"
+          }
+        },
+        "type": "object",
+        "required": [
+          "summary",
+          "analysis_plan",
+          "assumptions",
+          "problem",
+          "target_audience",
+          "audience_segments",
+          "value_proposition",
+          "jtbd",
+          "lean_canvas",
+          "mvp",
+          "backlog",
+          "roadmap",
+          "risks",
+          "critic_review",
+          "recommendations",
+          "final_report_markdown"
+        ],
+        "title": "AnalysisReport"
+      },
+      "AnalysisRunRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "case_id": {
+            "type": "integer",
+            "title": "Case Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AnalysisStatus"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AnalysisReport"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/AnalysisStageRead"
+            },
+            "type": "array",
+            "title": "Stages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "case_id",
+          "status",
+          "result",
+          "error_message",
+          "started_at",
+          "finished_at",
+          "stages"
+        ],
+        "title": "AnalysisRunRead"
+      },
+      "AnalysisStageName": {
+        "type": "string",
+        "enum": [
+          "planner",
+          "market_analyst",
+          "product_manager",
+          "critic",
+          "editor"
+        ],
+        "title": "AnalysisStageName"
+      },
+      "AnalysisStageRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "$ref": "#/components/schemas/AnalysisStageName"
+          },
+          "position": {
+            "type": "integer",
+            "title": "Position"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AnalysisStatus"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "position",
+          "status",
+          "result",
+          "error_message",
+          "started_at",
+          "finished_at"
+        ],
+        "title": "AnalysisStageRead"
+      },
+      "AnalysisStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "running",
+          "completed",
+          "failed"
+        ],
+        "title": "AnalysisStatus"
+      },
+      "AudienceSegment": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Description"
+          },
+          "needs": {
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Needs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "needs"
+        ],
+        "title": "AudienceSegment"
+      },
+      "BacklogItem": {
+        "properties": {
+          "epic": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Epic"
+          },
+          "user_story": {
+            "type": "string",
+            "minLength": 1,
+            "title": "User Story"
+          },
+          "acceptance_criteria": {
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Acceptance Criteria"
+          },
+          "priority": {
+            "$ref": "#/components/schemas/BacklogPriority"
+          }
+        },
+        "type": "object",
+        "required": [
+          "epic",
+          "user_story",
+          "acceptance_criteria",
+          "priority"
+        ],
+        "title": "BacklogItem"
+      },
+      "BacklogPriority": {
+        "type": "string",
+        "enum": [
+          "must",
+          "should",
+          "could"
+        ],
+        "title": "BacklogPriority"
+      },
+      "CaseCreate": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Description"
+          },
+          "audience": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Audience"
+          },
+          "problem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Problem"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/CaseStage",
+            "default": "idea"
+          },
+          "analysis_goal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Analysis Goal"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "description"
+        ],
+        "title": "CaseCreate"
+      },
+      "CaseRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "audience": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Audience"
+          },
+          "problem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Problem"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/CaseStage"
+          },
+          "analysis_goal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Analysis Goal"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "description",
+          "audience",
+          "problem",
+          "stage",
+          "analysis_goal",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "CaseRead"
+      },
+      "CaseStage": {
+        "type": "string",
+        "enum": [
+          "idea",
+          "validation",
+          "prototype",
+          "mvp",
+          "launched"
+        ],
+        "title": "CaseStage"
+      },
+      "CaseUpdate": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "audience": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Audience"
+          },
+          "problem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Problem"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CaseStage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "analysis_goal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Analysis Goal"
+          }
+        },
+        "type": "object",
+        "title": "CaseUpdate"
+      },
+      "CriticReview": {
+        "properties": {
+          "issues": {
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": "array",
+            "title": "Issues"
+          },
+          "contradictions": {
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": "array",
+            "title": "Contradictions"
+          },
+          "recommendations": {
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Recommendations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "issues",
+          "contradictions",
+          "recommendations"
+        ],
+        "title": "CriticReview"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "JTBDItem": {
+        "properties": {
+          "situation": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Situation"
+          },
+          "motivation": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Motivation"
+          },
+          "expected_outcome": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Expected Outcome"
+          }
+        },
+        "type": "object",
+        "required": [
+          "situation",
+          "motivation",
+          "expected_outcome"
+        ],
+        "title": "JTBDItem"
+      },
+      "LeanCanvas": {
+        "properties": {
+          "problems": {
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Problems"
+          },
+          "customer_segments": {
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Customer Segments"
+          },
+          "unique_value_proposition": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Unique Value Proposition"
+          },
+          "solutions": {
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Solutions"
+          },
+          "channels": {
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Channels"
+          },
+          "revenue_streams": {
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Revenue Streams"
+          },
+          "cost_structure": {
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Cost Structure"
+          },
+          "key_metrics": {
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Key Metrics"
+          },
+          "unfair_advantage": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Unfair Advantage"
+          }
+        },
+        "type": "object",
+        "required": [
+          "problems",
+          "customer_segments",
+          "unique_value_proposition",
+          "solutions",
+          "channels",
+          "revenue_streams",
+          "cost_structure",
+          "key_metrics",
+          "unfair_advantage"
+        ],
+        "title": "LeanCanvas"
+      },
+      "MVPFeature": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Description"
+          },
+          "priority": {
+            "$ref": "#/components/schemas/BacklogPriority"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "priority"
+        ],
+        "title": "MVPFeature"
+      },
+      "ProductRisk": {
+        "properties": {
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Description"
+          },
+          "level": {
+            "$ref": "#/components/schemas/RiskLevel"
+          },
+          "mitigation": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Mitigation"
+          }
+        },
+        "type": "object",
+        "required": [
+          "description",
+          "level",
+          "mitigation"
+        ],
+        "title": "ProductRisk"
+      },
+      "RiskLevel": {
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "title": "RiskLevel"
+      },
+      "RoadmapStage": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name"
+          },
+          "goal": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Goal"
+          },
+          "deliverables": {
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Deliverables"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "goal",
+          "deliverables"
+        ],
+        "title": "RoadmapStage"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

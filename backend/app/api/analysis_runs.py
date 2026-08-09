@@ -33,6 +33,7 @@ def get_case_or_404(case_id: int, db: Session) -> Case:
     '/cases/{case_id}/analysis-runs',
     response_model=AnalysisRunRead,
     status_code=status.HTTP_201_CREATED,
+    operation_id='createAnalysisRun',
 )
 def create_analysis_run(case_id: int, db: Session = Depends(get_db)):
     case = get_case_or_404(case_id, db)
@@ -121,6 +122,7 @@ def create_analysis_run(case_id: int, db: Session = Depends(get_db)):
 @router.get(
     '/cases/{case_id}/analysis-runs',
     response_model=list[AnalysisRunRead],
+    operation_id='listCaseAnalysisRuns',
 )
 def get_case_analysis_runs(case_id: int, db: Session = Depends(get_db)):
     get_case_or_404(case_id, db)
@@ -133,7 +135,11 @@ def get_case_analysis_runs(case_id: int, db: Session = Depends(get_db)):
     )
 
 
-@router.get('/analysis-runs/{run_id}', response_model=AnalysisRunRead)
+@router.get(
+    '/analysis-runs/{run_id}',
+    response_model=AnalysisRunRead,
+    operation_id='getAnalysisRun',
+)
 def get_analysis_run(run_id: int, db: Session = Depends(get_db)):
     analysis_run = db.get(AnalysisRun, run_id)
 
