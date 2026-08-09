@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.models import Case
 from app.db.session import get_db
 from app.schemas.cases import CaseCreate, CaseRead, CaseUpdate
+from app.schemas.errors import ErrorResponse
 
 router = APIRouter(prefix='/cases', tags=['cases'])
 
@@ -31,6 +32,12 @@ def create_case(case_data: CaseCreate, db: Session = Depends(get_db)):
     '/{case_id}',
     response_model=CaseRead,
     operation_id='getCase',
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            'model': ErrorResponse,
+            'description': 'Case not found',
+        },
+    },
 )
 def get_case(case_id: int, db: Session = Depends(get_db)):
     case = db.query(Case).filter(Case.id == case_id).first()
@@ -48,6 +55,12 @@ def get_case(case_id: int, db: Session = Depends(get_db)):
     '/{case_id}',
     response_model=CaseRead,
     operation_id='updateCase',
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            'model': ErrorResponse,
+            'description': 'Case not found',
+        },
+    },
 )
 def update_case(case_id: int, case_data: CaseUpdate, db: Session = Depends(get_db)):
     case = db.query(Case).filter(Case.id == case_id).first()
@@ -73,6 +86,12 @@ def update_case(case_id: int, case_data: CaseUpdate, db: Session = Depends(get_d
     '/{case_id}',
     status_code=status.HTTP_204_NO_CONTENT,
     operation_id='deleteCase',
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            'model': ErrorResponse,
+            'description': 'Case not found',
+        },
+    },
 )
 def delete_case(case_id: int, db: Session = Depends(get_db)):
     case = db.query(Case).filter(Case.id == case_id).first()
