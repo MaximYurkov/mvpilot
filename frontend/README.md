@@ -45,3 +45,13 @@ http://localhost:5173
 ```powershell
 npm run lint
 ```
+
+## Генерация API-клиента
+
+API-клиент и TypeScript-типы генерируются из OpenAPI-схемы с помощью `@hey-api/openapi-ts`.
+
+Для перегенерации клиента выполните из папки `frontend`:
+
+```powershell
+npm run api:generate
+```
