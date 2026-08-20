@@ -1,9 +1,7 @@
 import { Button, Form, Input, Typography } from 'antd';
 
 export function CreateCasePage() {
-  const handleSubmit = (values) => {
-    // TODO: В отдельной ветке допилить форму:
-    // отправку данных на backend
+  const handleSubmit = async (values) => {
     console.log(values);
   };
 
@@ -17,7 +15,6 @@ export function CreateCasePage() {
         rules={[
           { required: true, whitespace: true, message: 'Введите как будет называться кейс' },
           { max: 50, message: 'Максимум 50 символов' },
-          { min: 5, message: 'Минимум 5 символов' },
         ]}
       >
         <Input.TextArea rows={3} />
@@ -29,7 +26,6 @@ export function CreateCasePage() {
         rules={[
           { required: true, whitespace: true, message: 'Введите описание идеи' },
           { max: 200, message: 'Максимум 200 символов' },
-          { min: 20, message: 'Минимум 20 символов' },
         ]}
       >
         <Input.TextArea rows={6} />
@@ -41,7 +37,6 @@ export function CreateCasePage() {
         rules={[
           { required: true, whitespace: true, message: 'Введите целевую аудиторию' },
           { max: 200, message: 'Максимум 200 символов' },
-          { min: 20, message: 'Минимум 20 символов' },
         ]}
       >
         <Input.TextArea rows={6} />
