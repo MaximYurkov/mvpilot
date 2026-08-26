@@ -3,23 +3,28 @@
 }
 
 .header {
+  width: 85%;
   display: flex;
-  height: 64px;
+  height: 72px;
   padding: 0 28px;
   align-items: center;
   gap: 32px;
+  background-color: #fff;
+  margin: 0 auto;
 }
 
 .logo {
-  flex-shrink: 0;
-  color: #fff;
+  color: white;
   font-size: 20px;
   font-weight: 700;
+  background-color: black;
+  border-radius: 15%;
+  padding: 0 10px;
 }
 
 .menu {
   flex: 1;
-  min-width: 0;
+  justify-content: center;
 }
 
 .content {
@@ -27,4 +32,6 @@
   max-width: 1100px;
   margin: 0 auto;
   padding: 32px;
+  border-left: 3px solid black;
+  border-right: 3px solid black;
 }
