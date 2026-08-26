@@ -2,7 +2,7 @@ import { Layout, Menu } from 'antd';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 
 import styles from './AppLayout.module.scss';
-import { Separator } from '@/entites/separator/separator';
+import { Separator } from '@/entities/separator/separator';
 
 const { Header, Content } = Layout;
 
