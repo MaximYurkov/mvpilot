@@ -1,4 +1,4 @@
-import { Layout, Menu } from 'antd';
+import { Divider, Layout, Menu } from 'antd';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 
 import styles from './AppLayout.module.scss';
@@ -30,6 +30,8 @@ export function AppLayout() {
           ]}
         />
       </Header>
+
+      <Divider />
 
       <Separator />
 

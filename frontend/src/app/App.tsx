@@ -17,6 +17,10 @@ export function App() {
             horizontalItemSelectedColor: '#000000',
           },
         },
+
+        token: {
+          colorBgLayout: '#ffff',
+        },
       }}
     >
       <BrowserRouter>

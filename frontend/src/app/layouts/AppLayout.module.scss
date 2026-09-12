@@ -3,14 +3,13 @@
 }
 
 .header {
-  width: 85%;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
   height: 72px;
   padding: 0 28px;
   align-items: center;
   gap: 32px;
   background-color: #fff;
-  margin: 0 auto;
 }
 
 .logo {
@@ -20,6 +19,7 @@
   background-color: black;
   border-radius: 15%;
   padding: 0 10px;
+  justify-self: center;
 }
 
 .menu {
