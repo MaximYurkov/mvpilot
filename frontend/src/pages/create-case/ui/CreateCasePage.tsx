@@ -1,25 +1,50 @@
-import { Form, Input, Typography } from 'antd';
+import { Button, Form, Input, Typography } from 'antd';
 
 export function CreateCasePage() {
-  // TODO: В отдельной ветке допилить форму:
-  // добавить валидацию, кнопку отправки, обработчик onFinish
-  // и отправку данных на backend
+  const handleSubmit = async (values) => {
+    console.log(values);
+  };
 
   return (
-    <Form layout="vertical">
+    <Form layout="vertical" onFinish={handleSubmit}>
       <Typography.Title level={2}>Форма создания кейса</Typography.Title>
 
-      <Form.Item label="Название кейса" name="title">
-        <Input />
+      <Form.Item
+        label="Название кейса"
+        name="title"
+        rules={[
+          { required: true, whitespace: true, message: 'Введите как будет называться кейс' },
+          { max: 50, message: 'Максимум 50 символов' },
+        ]}
+      >
+        <Input.TextArea rows={3} />
       </Form.Item>
 
-      <Form.Item label="Описание идеи" name="description">
+      <Form.Item
+        label="Описание идеи"
+        name="description"
+        rules={[
+          { required: true, whitespace: true, message: 'Введите описание идеи' },
+          { max: 200, message: 'Максимум 200 символов' },
+        ]}
+      >
         <Input.TextArea rows={6} />
       </Form.Item>
 
-      <Form.Item label="Целевая аудитория" name="audience">
+      <Form.Item
+        label="Целевая аудитория"
+        name="audience"
+        rules={[
+          { required: true, whitespace: true, message: 'Введите целевую аудиторию' },
+          { max: 200, message: 'Максимум 200 символов' },
+        ]}
+      >
         <Input.TextArea rows={6} />
       </Form.Item>
+
+      <Button type="primary" htmlType="submit">
+        Отправить
+      </Button>
     </Form>
   );
 }
