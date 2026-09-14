@@ -2,6 +2,7 @@ import { Layout, Menu } from 'antd';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 
 import styles from './AppLayout.module.scss';
+import { Separator } from '@/entities/separator/separator';
 
 const { Header, Content } = Layout;
 
@@ -15,7 +16,6 @@ export function AppLayout() {
 
         <Menu
           className={styles.menu}
-          theme="dark"
           mode="horizontal"
           selectedKeys={[pathname]}
           items={[
@@ -30,6 +30,8 @@ export function AppLayout() {
           ]}
         />
       </Header>
+
+      <Separator />
 
       <Content className={styles.content}>
         <Outlet />
