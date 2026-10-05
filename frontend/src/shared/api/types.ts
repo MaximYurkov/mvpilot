@@ -46,3 +46,9 @@ export type Case = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type CaseFormValues = {
+  title: string;
+  description: string;
+  audience: string;
+};
