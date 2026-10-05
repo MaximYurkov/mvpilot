@@ -8,18 +8,18 @@ export function App() {
     <ConfigProvider
       theme={{
         components: {
+          List: { itemPadding: '24px 32px' },
           Menu: {
             fontSize: 20,
-            itemColor: '#000000',
-            itemHoverColor: '#000000',
-            itemSelectedColor: '#000000',
-            itemHoverBg: '#f0f0f0',
-            horizontalItemSelectedColor: '#000000',
+            activeBarHeight: 3,
           },
         },
 
         token: {
+          colorPrimary: '#000000',
           colorBgLayout: '#ffff',
+          lineWidth: 3,
+          colorSplit: '#000000',
         },
       }}
     >
