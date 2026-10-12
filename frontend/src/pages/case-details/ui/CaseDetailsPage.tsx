@@ -22,7 +22,7 @@ export function CaseDetailsPage() {
       .then((data) => setData(data))
       .catch((err) => setError(err.message))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [caseId]);
 
   if (isLoading) {
     return <Spin />;
