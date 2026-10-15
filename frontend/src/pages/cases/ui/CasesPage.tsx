@@ -31,7 +31,7 @@ export function CasesPage() {
   return (
     <List
       itemLayout="horizontal"
-      dataSource={data}
+      dataSource={data ?? []}
       renderItem={(item) => (
         <List.Item>
           <List.Item.Meta title={<p>{item.title}</p>} description={<p>{item.description}</p>} />
