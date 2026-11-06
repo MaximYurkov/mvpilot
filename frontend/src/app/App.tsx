@@ -18,8 +18,9 @@ export function App() {
         token: {
           colorPrimary: '#000000',
           colorBgLayout: '#ffff',
-          lineWidth: 3,
+          lineWidth: 2,
           colorSplit: '#000000',
+          colorBorderSecondary: '#00000067',
         },
       }}
     >

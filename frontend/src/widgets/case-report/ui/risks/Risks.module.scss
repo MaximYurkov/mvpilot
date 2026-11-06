@@ -1,0 +1,55 @@
+.CardGap {
+    margin-bottom: 8px;
+}
+
+.GreenSpace,
+.OrangeSpace,
+.RedSpace {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 8px;
+  box-sizing: border-box;
+  height: 110px;
+}
+
+
+.GreenSpace {
+    background-color: rgb(121, 172, 108);
+}
+
+.OrangeSpace {
+    background-color: rgb(228, 210, 132);
+}
+
+.RedSpace {
+    background-color: rgb(196, 108, 108);
+}
+
+.RowRisks {
+    display: flex;
+    justify-content: center;
+}
+
+.ColumnRisks {
+    display: flex;
+    min-width: 7%;
+    margin-right: 4px;
+    align-items: center; 
+}
+
+.RowTitle {
+    display: flex;
+    justify-content: center;
+    letter-spacing: 1px;
+}
+
+.ColumnTitle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    letter-spacing: 1px;
+}

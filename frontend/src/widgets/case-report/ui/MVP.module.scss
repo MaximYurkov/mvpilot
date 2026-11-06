@@ -1,0 +1,30 @@
+.moscow {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-areas:
+    'must should could wont'
+    'must should could wont'  
+    'must should could wont';
+  padding-bottom: 16px; 
+};
+
+.must {
+    grid-area: must;
+    margin-bottom: 8px;
+};
+
+.should {
+    grid-area: should;
+    margin-bottom: 8px;
+};
+
+.could {
+    grid-area: could;
+    margin-bottom: 8px;
+};
+
+.wont {
+    grid-area: wont;
+    margin-bottom: 8px;
+};

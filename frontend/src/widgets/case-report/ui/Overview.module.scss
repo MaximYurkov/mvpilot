@@ -1,0 +1,38 @@
+.StatsCards {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.CardText {
+    font-size: 150%;
+    font-weight: 500;
+}
+
+.GraphRow {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+}
+
+.GraphCards {
+    margin-bottom: 16px;
+}
+
+.Graph {
+    width: 50%;
+}
+
+.StatsColumn {
+    width: 50%;
+}
+
+.GapForAll {
+    display: grid;
+    gap: 16px;
+}
+
+.ChartContainer {
+    width: 100%;
+    height: 300px;
+}

@@ -1,0 +1,37 @@
+.canvas {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-areas:
+    'problems solutions value advantage segments'
+    'problems metrics   value channels  segments'
+    'costs    costs     revenue revenue   revenue';
+}
+
+.problems {
+  grid-area: problems;
+}
+.solutions {
+  grid-area: solutions;
+}
+.value {
+  grid-area: value;
+}
+.advantage {
+  grid-area: advantage;
+}
+.segments {
+  grid-area: segments;
+}
+.metrics {
+  grid-area: metrics;
+}
+.channels {
+  grid-area: channels;
+}
+.costs {
+  grid-area: costs;
+}
+.revenue {
+  grid-area: revenue;
+}

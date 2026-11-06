@@ -1,0 +1,22 @@
+.CardRow {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.TagGap {
+    margin-right: 8px;
+}
+
+.CardGap {
+    margin-bottom: 16px;
+}
+
+.Graph {
+    width: 50%;
+}
+
+.StatsColumn {
+    width: 50%;
+}

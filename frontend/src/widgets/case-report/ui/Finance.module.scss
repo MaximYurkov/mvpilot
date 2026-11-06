@@ -1,0 +1,58 @@
+.finance {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.figureCard {
+  height: 100%;
+}
+
+.budgetItem {
+  margin-bottom: 16px;
+}
+
+.budgetHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.budgetItem {
+  margin-bottom: 20px;
+}
+
+.budgetHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  margin-bottom: 8px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.figureCard {
+  height: 100%;
+}
+
+.budgetButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+

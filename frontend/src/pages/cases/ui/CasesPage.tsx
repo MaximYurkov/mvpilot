@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { fetchCasesCard } from '@/shared/api/fetch';
 
-import type { Case } from '@/shared/api/types';
+import type { Case } from '@/entities/case/model/types';
 
 export function CasesPage() {
   const navigate = useNavigate();

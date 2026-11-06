@@ -1,4 +1,4 @@
-import type { CaseFormValues } from '@/shared/api/types';
+import type { CaseFormValues } from '@/entities/case/model/types';
 import { Button, Form, Input, Modal, Spin, Steps, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 import { LoadingOutlined } from '@ant-design/icons';

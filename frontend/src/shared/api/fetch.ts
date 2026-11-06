@@ -1,4 +1,5 @@
-import type { Case, CaseReport } from './types';
+import type { Case } from '@/entities/case/model/types';
+import type { CaseReport } from '@/entities/report/model/types';
 
 export async function fetchCasesCard(): Promise<Case[]> {
   const response = await fetch('/cases.json');
