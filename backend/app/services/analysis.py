@@ -1,389 +1,223 @@
 from app.core.analysis import AnalysisStageName
-from app.core.cases import CaseStage
 from app.db.models import Case
-from app.schemas.analysis_runs import (
-    AnalysisReport,
-    AudienceSegment,
-    BacklogItem,
-    BacklogPriority,
-    CriticReview,
-    JTBDItem,
-    LeanCanvas,
-    MVPFeature,
-    ProductRisk,
-    RiskLevel,
-    RoadmapStage,
+from app.schemas.reports import CaseReport
+
+MOCK_NOTE = (
+    'Локальный mock-черновик без LLM и внешних источников. '
+    'Продуктовые гипотезы требуют проверки.'
+)
+NO_DATA_NOTE = (
+    'Нет подтверждённых данных. Числа и источники не подставлены автоматически.'
 )
 
-CASE_STAGE_LABELS = {
-    CaseStage.IDEA.value: 'идея',
-    CaseStage.VALIDATION.value: 'проверка гипотез',
-    CaseStage.PROTOTYPE.value: 'прототип',
-    CaseStage.MVP.value: 'MVP',
-    CaseStage.LAUNCHED.value: 'запущенный продукт',
-}
 
+def build_mock_report(case: Case) -> CaseReport:
+    audience = case.audience or 'Целевая аудитория ещё не определена'
+    problem = case.problem or 'Пользовательскую проблему нужно уточнить интервью.'
+    north_star = 'Пользователи, завершившие основной полезный сценарий'
+    partial = {'status': 'partial', 'note': MOCK_NOTE, 'sources': []}
+    unavailable = {
+        'status': 'insufficient_data',
+        'note': NO_DATA_NOTE,
+        'sources': [],
+    }
 
-def build_mock_report(case: Case) -> AnalysisReport:
-    audience = case.audience or 'Первый узкий сегмент пользователей ещё не определён.'
-    problem = case.problem or 'Проблема пользователя требует уточнения.'
-    stage = CASE_STAGE_LABELS.get(case.stage, case.stage)
-    analysis_goal = (
-        case.analysis_goal
-        or 'Получить структурированный черновик продуктового кейса.'
-    )
-    value_proposition = (
-        f'{case.title} помогает аудитории «{audience}» решить следующую проблему: '
-        f'{problem.lower()}'
-    )
-
-    assumptions = [
-        'Описание аудитории и её потребностей пока является гипотезой.',
-        'Рыночные выводы не подтверждены внешними источниками.',
-        'Состав MVP нужно проверить интервью и прототипом.',
-        f'Текущая стадия проекта указана как «{stage}».',
-    ]
-    analysis_plan = [
-        f'Учесть цель анализа: {analysis_goal}',
-        'Уточнить проблему и сегменты целевой аудитории.',
-        'Проверить ценностное предложение и сформулировать JTBD.',
-        'Определить Lean Canvas, состав MVP и продуктовые метрики.',
-        'Составить первый backlog, roadmap и список рисков.',
-        'Проверить согласованность продуктового кейса.',
-    ]
-    audience_segments = [
-        AudienceSegment(
-            name=audience,
-            description='Предполагаемый первый сегмент пользователей продукта.',
-            needs=[
-                f'Решить проблему: {problem}',
-                'Получить понятный результат без лишней сложности.',
+    return CaseReport.model_validate({
+        'overview': {
+            **partial,
+            'idea': f'{case.title}: {case.description}',
+            'readiness': [],
+            'tiles': [],
+        },
+        'market': {
+            **unavailable,
+            'tam': None,
+            'sam': None,
+            'som': None,
+            'method': None,
+            'methodComment': None,
+            'assumptions': [],
+            'dynamics': [],
+            'dynamicsSource': None,
+            'trends': [],
+        },
+        'audience': {
+            **partial,
+            'primarySegment': case.audience or None,
+            'segments': [{
+                'name': audience,
+                'estimatedShare': None,
+                'description': 'Первый предполагаемый сегмент из описания кейса.',
+                'needs': [problem],
+            }],
+            'jtbd': [{
+                'situation': f'когда возникает потребность в продукте «{case.title}»',
+                'motivation': 'я хочу пройти основной сценарий без лишних действий',
+                'outcome': 'чтобы получить полезный результат',
+                'priority': 'high',
+            }],
+        },
+        'competitors': {
+            **unavailable,
+            'axes': {'x': 'Полезность', 'y': 'Удобство'},
+            'items': [{
+                'name': case.title,
+                'x': None,
+                'y': None,
+                'isProduct': True,
+                'url': None,
+                'strengths': [],
+                'weaknesses': [],
+            }],
+            'comparison': [],
+            'swot': {
+                'strengths': [],
+                'weaknesses': ['Нет подтверждения пользовательского спроса.'],
+                'opportunities': [],
+                'threats': ['Пользователи могут предпочесть существующие альтернативы.'],
+            },
+        },
+        'leanCanvas': {
+            **partial,
+            'problems': [problem],
+            'solutions': [case.description],
+            'value': f'Помочь аудитории «{audience}» получить основной результат.',
+            'advantage': 'Отличие от альтернатив ещё нужно подтвердить.',
+            'segments': [audience],
+            'metrics': [north_star],
+            'channels': ['Проверить спрос в сообществах целевой аудитории.'],
+            'costs': ['Оценить стоимость разработки и поддержки.'],
+            'revenue': ['Проверить готовность аудитории платить.'],
+        },
+        'mvp': {
+            **partial,
+            'features': [
+                {
+                    'name': 'Основной полезный сценарий',
+                    'description': case.description,
+                    'priority': 'must',
+                },
+                {
+                    'name': 'Просмотр результата',
+                    'description': 'Повторно открыть полученный результат.',
+                    'priority': 'should',
+                },
+                {
+                    'name': 'Дополнительные сценарии',
+                    'description': 'Отложить до проверки основного спроса.',
+                    'priority': 'wont',
+                },
             ],
-        )
-    ]
-    jtbd = [
-        JTBDItem(
-            situation=f'пользователь сталкивается с проблемой «{problem}»',
-            motivation=f'воспользоваться продуктом «{case.title}»',
-            expected_outcome='чтобы быстрее получить полезный и понятный результат',
-        )
-    ]
-    lean_canvas = LeanCanvas(
-        problems=[
-            problem,
-            'Существующий способ решения может занимать много времени.',
-        ],
-        customer_segments=[audience],
-        unique_value_proposition=value_proposition,
-        solutions=[
-            'Простой основной сценарий решения пользовательской проблемы.',
-            'Сохранение результата для дальнейшей работы.',
-        ],
-        channels=[
-            'Тематические сообщества.',
-            'Учебные проекты и рекомендации первых пользователей.',
-        ],
-        revenue_streams=[
-            'Гипотеза: бесплатная базовая версия и платные расширенные возможности.',
-        ],
-        cost_structure=[
-            'Разработка и поддержка приложения.',
-            'Инфраструктура и используемые внешние сервисы.',
-        ],
-        key_metrics=[
-            'Количество пользователей, завершивших основной сценарий.',
-            'Доля пользователей, которые возвращаются к продукту.',
-        ],
-        unfair_advantage=(
-            'Гипотеза: более простой и сфокусированный сценарий для выбранной аудитории.'
-        ),
-    )
-    mvp = [
-        MVPFeature(
-            name='Создание проекта',
-            description='Пользователь сохраняет исходные данные своей идеи.',
-            priority=BacklogPriority.MUST,
-        ),
-        MVPFeature(
-            name='Основной полезный сценарий',
-            description=f'Продукт помогает решить проблему: {problem}',
-            priority=BacklogPriority.MUST,
-        ),
-        MVPFeature(
-            name='Просмотр результата',
-            description='Пользователь видит и может повторно открыть результат работы.',
-            priority=BacklogPriority.SHOULD,
-        ),
-    ]
-    backlog = [
-        BacklogItem(
-            epic='Управление проектом',
-            user_story=(
-                'Как пользователь, я хочу создать проект, '
-                'чтобы сохранить исходную информацию.'
-            ),
-            acceptance_criteria=[
-                'Пользователь может заполнить обязательные поля.',
-                'После сохранения проект доступен для просмотра.',
+            'userFlow': [
+                {'step': 'Открыть продукт', 'description': 'Понять предлагаемую ценность.'},
+                {'step': 'Ввести данные', 'description': 'Передать данные для основного сценария.'},
+                {'step': 'Получить результат', 'description': 'Оценить полезность решения.'},
             ],
-            priority=BacklogPriority.MUST,
-        ),
-        BacklogItem(
-            epic='Основной сценарий',
-            user_story=(
-                'Как пользователь, я хочу пройти основной сценарий продукта, '
-                'чтобы получить ожидаемую ценность.'
-            ),
-            acceptance_criteria=[
-                'Сценарий можно запустить для существующего проекта.',
-                'Результат сценария сохраняется.',
-                'Ошибка отображается в понятном виде.',
+        },
+        'roadmap': {**unavailable, 'stages': []},
+        'metrics': {
+            **partial,
+            'northStar': {'name': north_star, 'value': None, 'unit': 'в месяц'},
+            'tree': {
+                'name': north_star,
+                'children': [
+                    {'name': 'Привлечение целевой аудитории'},
+                    {'name': 'Конверсия в полезный результат'},
+                    {'name': 'Повторное использование'},
+                ],
+            },
+            'funnel': [],
+        },
+        'finance': {
+            **unavailable,
+            'figures': [],
+            'recommendedTotal': None,
+            'budgetSections': [],
+        },
+        'risks': {
+            **partial,
+            'items': [
+                {
+                    'cell': 9,
+                    'description': 'Проблема может быть недостаточно важна для аудитории.',
+                    'mitigation': 'Проверить проблему до разработки полной версии.',
+                    'cheapCheck': 'Провести 5–7 интервью.',
+                },
+                {
+                    'cell': 6,
+                    'description': 'Состав MVP может оказаться слишком большим.',
+                    'mitigation': 'Оставить один основной пользовательский сценарий.',
+                    'cheapCheck': 'Показать прототип представителям аудитории.',
+                },
+                {
+                    'cell': 5,
+                    'description': 'Экономика продукта ещё не подтверждена.',
+                    'mitigation': 'Собрать оценки расходов и спроса.',
+                    'cheapCheck': 'Получить предложения подрядчиков и проверить цену.',
+                },
             ],
-            priority=BacklogPriority.MUST,
-        ),
-    ]
-    roadmap = [
-        RoadmapStage(
-            name='Проверка гипотез',
-            goal='Понять, существует ли проблема у выбранной аудитории.',
-            deliverables=[
-                'Интервью с потенциальными пользователями.',
-                'Уточнённые проблема и ценностное предложение.',
+        },
+        'nextSteps': {
+            **partial,
+            'items': [
+                {
+                    'title': 'Провести интервью',
+                    'description': f'Проверить проблему сегмента «{audience}».',
+                    'priority': 'must',
+                    'effort': 'medium',
+                    'partner': None,
+                },
+                {
+                    'title': 'Проверить основной сценарий',
+                    'description': 'Собрать небольшой прототип и показать пользователям.',
+                    'priority': 'must',
+                    'effort': 'medium',
+                    'partner': None,
+                },
+                {
+                    'title': 'Собрать данные для расчётов',
+                    'description': 'Найти источники рынка и получить оценки расходов.',
+                    'priority': 'should',
+                    'effort': 'high',
+                    'partner': None,
+                },
             ],
+        },
+        'markdown': (
+            f'# {case.title}\n\n'
+            f'## Обзор\n\n{case.description}\n\n'
+            f'## Аудитория\n\n{audience}\n\n'
+            f'## Проблема\n\n{problem}\n\n'
+            '## Lean Canvas\n\nПроверить сегмент, ценность и способ монетизации.\n\n'
+            '## MVP\n\nОдин основной пользовательский сценарий и просмотр результата.\n\n'
+            '## Рынок, конкуренты и финансы\n\nНет подтверждённых данных.\n\n'
+            '## Метрики\n\nОпределить конверсию в полезный результат.\n\n'
+            '## Следующие шаги\n\nПровести интервью и проверить прототип.\n\n'
+            f'> {MOCK_NOTE}\n'
         ),
-        RoadmapStage(
-            name='MVP',
-            goal='Проверить основной полезный сценарий.',
-            deliverables=[
-                'Рабочий прототип.',
-                'Сбор обратной связи и основных метрик.',
-            ],
-        ),
-        RoadmapStage(
-            name='Первая версия',
-            goal='Улучшить продукт на основе результатов MVP.',
-            deliverables=[
-                'Исправления основных проблем.',
-                'Функции с подтверждённым пользовательским спросом.',
-            ],
-        ),
-    ]
-    risks = [
-        ProductRisk(
-            description='Проблема может быть недостаточно значимой для аудитории.',
-            level=RiskLevel.HIGH,
-            mitigation='Провести интервью до разработки полного продукта.',
-        ),
-        ProductRisk(
-            description='Состав MVP может оказаться слишком большим.',
-            level=RiskLevel.MEDIUM,
-            mitigation='Оставить только функции основного пользовательского сценария.',
-        ),
-        ProductRisk(
-            description='Рыночные предположения пока не подтверждены.',
-            level=RiskLevel.MEDIUM,
-            mitigation='Проверить конкурентов и альтернативные способы решения проблемы.',
-        ),
-    ]
-    critic_issues = [
-        'Пока нет результатов интервью с представителями аудитории.',
-        'Ключевые метрики требуют числовых целевых значений.',
-    ]
-
-    if case.audience is None:
-        critic_issues.append('Не указан конкретный сегмент целевой аудитории.')
-        risks.append(
-            ProductRisk(
-                description='Слишком широкая или неизвестная целевая аудитория.',
-                level=RiskLevel.HIGH,
-                mitigation='Выбрать один первый сегмент для проверки гипотезы.',
-            )
-        )
-
-    if case.problem is None:
-        critic_issues.append('Пользовательская проблема явно не сформулирована.')
-        risks.append(
-            ProductRisk(
-                description='Функции продукта могут не решать реальную проблему.',
-                level=RiskLevel.HIGH,
-                mitigation='Сформулировать и проверить проблему до разработки MVP.',
-            )
-        )
-
-    recommendations = [
-        'Провести 5–7 интервью с представителями первого сегмента.',
-        'Проверить ключевую гипотезу небольшим прототипом.',
-        'Определить одну главную метрику успеха MVP.',
-    ]
-    critic_review = CriticReview(
-        issues=critic_issues,
-        contradictions=[],
-        recommendations=recommendations,
-    )
-    final_report_markdown = _build_mock_markdown(
-        case=case,
-        stage=stage,
-        analysis_goal=analysis_goal,
-        audience=audience,
-        problem=problem,
-        value_proposition=value_proposition,
-        jtbd=jtbd,
-        lean_canvas=lean_canvas,
-        mvp=mvp,
-        backlog=backlog,
-        roadmap=roadmap,
-        risks=risks,
-        critic_review=critic_review,
-        recommendations=recommendations,
-    )
-
-    return AnalysisReport(
-        summary=(
-            f'«{case.title}» — продукт на стадии «{stage}»: {case.description}'
-        ),
-        analysis_plan=analysis_plan,
-        assumptions=assumptions,
-        problem=problem,
-        target_audience=audience,
-        audience_segments=audience_segments,
-        value_proposition=value_proposition,
-        jtbd=jtbd,
-        lean_canvas=lean_canvas,
-        mvp=mvp,
-        backlog=backlog,
-        roadmap=roadmap,
-        risks=risks,
-        critic_review=critic_review,
-        recommendations=recommendations,
-        final_report_markdown=final_report_markdown,
-    )
+    })
 
 
 def build_mock_stage_results(
-    report: AnalysisReport,
+    report: CaseReport,
 ) -> dict[AnalysisStageName, dict[str, object]]:
+    payload = report.model_dump(mode='json')
     return {
         AnalysisStageName.PLANNER: {
-            'analysis_plan': report.analysis_plan,
-            'assumptions': report.assumptions,
+            'sections': [name for name in payload if name != 'markdown'],
+            'note': MOCK_NOTE,
         },
         AnalysisStageName.MARKET_ANALYST: {
-            'problem': report.problem,
-            'target_audience': report.target_audience,
-            'audience_segments': [
-                segment.model_dump(mode='json')
-                for segment in report.audience_segments
-            ],
-            'risks': [risk.model_dump(mode='json') for risk in report.risks],
+            name: payload[name] for name in ('market', 'audience', 'competitors')
         },
         AnalysisStageName.PRODUCT_MANAGER: {
-            'value_proposition': report.value_proposition,
-            'jtbd': [item.model_dump(mode='json') for item in report.jtbd],
-            'lean_canvas': report.lean_canvas.model_dump(mode='json'),
-            'mvp': [feature.model_dump(mode='json') for feature in report.mvp],
-            'backlog': [item.model_dump(mode='json') for item in report.backlog],
-            'roadmap': [stage.model_dump(mode='json') for stage in report.roadmap],
+            name: payload[name]
+            for name in ('leanCanvas', 'mvp', 'roadmap', 'metrics', 'finance')
         },
         AnalysisStageName.CRITIC: {
-            'critic_review': report.critic_review.model_dump(mode='json'),
-            'recommendations': report.recommendations,
+            name: payload[name] for name in ('risks', 'nextSteps')
         },
         AnalysisStageName.EDITOR: {
-            'summary': report.summary,
-            'final_report_markdown': report.final_report_markdown,
+            name: payload[name] for name in ('overview', 'markdown')
         },
     }
-
-
-def _build_mock_markdown(
-    *,
-    case: Case,
-    stage: str,
-    analysis_goal: str,
-    audience: str,
-    problem: str,
-    value_proposition: str,
-    jtbd: list[JTBDItem],
-    lean_canvas: LeanCanvas,
-    mvp: list[MVPFeature],
-    backlog: list[BacklogItem],
-    roadmap: list[RoadmapStage],
-    risks: list[ProductRisk],
-    critic_review: CriticReview,
-    recommendations: list[str],
-) -> str:
-    canvas_problems = '\n'.join(f'- {item}' for item in lean_canvas.problems)
-    canvas_solutions = '\n'.join(f'- {item}' for item in lean_canvas.solutions)
-    mvp_text = '\n'.join(f'- {feature.name}: {feature.description}' for feature in mvp)
-    backlog_text = '\n'.join(f'- {item.user_story}' for item in backlog)
-    roadmap_text = '\n'.join(f'- {stage.name}: {stage.goal}' for stage in roadmap)
-    risks_text = '\n'.join(f'- {risk.description}' for risk in risks)
-    critic_text = '\n'.join(f'- {issue}' for issue in critic_review.issues)
-    recommendations_text = '\n'.join(f'- {item}' for item in recommendations)
-    first_jtbd = jtbd[0]
-
-    return f"""# {case.title}
-
-## Описание
-
-{case.description}
-
-Текущая стадия: {stage}
-
-Цель анализа: {analysis_goal}
-
-## Проблема
-
-{problem}
-
-## Целевая аудитория
-
-{audience}
-
-## Ценностное предложение
-
-{value_proposition}
-
-## JTBD
-
-Когда {first_jtbd.situation.lower()}, я хочу {first_jtbd.motivation.lower()},
-{first_jtbd.expected_outcome.lower()}.
-
-## Lean Canvas
-
-Проблемы:
-
-{canvas_problems}
-
-Решения:
-
-{canvas_solutions}
-
-Уникальное ценностное предложение: {lean_canvas.unique_value_proposition}
-
-## MVP
-
-{mvp_text}
-
-## Backlog
-
-{backlog_text}
-
-## Roadmap
-
-{roadmap_text}
-
-## Риски
-
-{risks_text}
-
-## Критика
-
-{critic_text}
-
-## Рекомендации
-
-{recommendations_text}
-
-> Отчёт создан mock-анализом. Все продуктовые выводы требуют проверки.
-"""

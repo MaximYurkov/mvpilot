@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
-from app.db.models import Case
+from app.db.models import AnalysisRun, Case
 from app.db.session import get_db
-from app.schemas.cases import CaseCreate, CaseRead, CaseUpdate
+from app.schemas.cases import Case as CaseRead, CaseFormValues, CaseUpdate
 from app.schemas.errors import ErrorResponse
 
 router = APIRouter(prefix='/cases', tags=['cases'])
@@ -20,7 +20,7 @@ def get_cases(db: Session = Depends(get_db)):
     status_code=status.HTTP_201_CREATED,
     operation_id='createCase',
 )
-def create_case(case_data: CaseCreate, db: Session = Depends(get_db)):
+def create_case(case_data: CaseFormValues, db: Session = Depends(get_db)):
     case = Case(**case_data.model_dump())
     db.add(case)
     db.commit()
@@ -102,6 +102,11 @@ def delete_case(case_id: int, db: Session = Depends(get_db)):
             detail='Case not found',
         )
 
+    # Delete dependent runs and stages through the ORM before removing the case.
+    # Existing SQLite databases may not have foreign key enforcement enabled.
+    for run in db.query(AnalysisRun).filter(AnalysisRun.case_id == case_id).all():
+        db.delete(run)
+    db.flush()
     db.delete(case)
     db.commit()
 

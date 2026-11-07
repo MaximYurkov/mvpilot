@@ -1,86 +1,109 @@
-import unittest
-
-from pydantic import ValidationError
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
-
-from app.api.cases import create_case, get_case, get_cases, update_case
-from app.core.cases import CaseStage
-from app.db.base import Base
-from app.schemas.cases import CaseCreate, CaseRead, CaseUpdate
+from app.db.models import AnalysisRun, AnalysisStage, Case
+from tests.support import APITestCase, fixture
 
 
-class CasesTestCase(unittest.TestCase):
-    def setUp(self):
-        engine = create_engine(
-            'sqlite://',
-            connect_args={'check_same_thread': False},
-            poolclass=StaticPool,
-        )
-        Base.metadata.create_all(bind=engine)
-        self.engine = engine
-        self.db = sessionmaker(bind=engine)()
-
-    def tearDown(self):
-        self.db.close()
-        self.engine.dispose()
-
-    def test_create_case_uses_idea_as_default_stage(self):
-        case = create_case(
-            CaseCreate(
-                title='Новая идея',
-                description='Описание продуктовой идеи.',
-            ),
-            self.db,
-        )
-        response = CaseRead.model_validate(case)
-
-        self.assertEqual(response.stage, CaseStage.IDEA)
-        self.assertIsNone(response.analysis_goal)
-
-    def test_stage_and_analysis_goal_can_be_created_read_and_updated(self):
-        case = create_case(
-            CaseCreate(
-                title='Учебный планировщик',
-                description='Помогает студентам планировать задачи.',
-                stage=CaseStage.PROTOTYPE,
-                analysis_goal='Проверить состав MVP',
-            ),
-            self.db,
-        )
-
-        fetched_case = get_case(case.id, self.db)
-        updated_case = update_case(
-            case.id,
-            CaseUpdate(
-                stage=CaseStage.MVP,
-                analysis_goal='Подготовить roadmap первой версии',
-            ),
-            self.db,
-        )
-        cases = get_cases(self.db)
-
-        self.assertEqual(fetched_case.id, case.id)
-        self.assertEqual(updated_case.stage, CaseStage.MVP.value)
+class CasesTestCase(APITestCase):
+    def test_create_and_read_use_exact_frontend_shape(self):
+        case = self.create_case()
+        expected_keys = {
+            'id', 'title', 'description', 'audience', 'createdAt', 'updatedAt',
+        }
+        self.assertEqual(set(case), expected_keys)
+        self.assertIsInstance(case['id'], int)
         self.assertEqual(
-            updated_case.analysis_goal,
-            'Подготовить roadmap первой версии',
+            self.client.get(f"/api/cases/{case['id']}").json(),
+            case,
         )
-        self.assertEqual([item.id for item in cases], [case.id])
+        self.assertEqual(self.client.get('/api/cases').json(), [case])
 
-    def test_unknown_stage_is_rejected(self):
-        with self.assertRaises(ValidationError):
-            CaseCreate(
-                title='Новая идея',
-                description='Описание.',
-                stage='unknown',
+    def test_fixture_fields_can_be_created(self):
+        for example in fixture('cases.json'):
+            self.create_case(**{
+                key: example[key] for key in ('title', 'description', 'audience')
+            })
+
+    def test_missing_or_blank_form_fields_are_rejected(self):
+        for field in ('title', 'description', 'audience'):
+            for value in (None, '', '   '):
+                with self.subTest(field=field, value=value):
+                    data = {
+                        'title': 'Идея',
+                        'description': 'Описание',
+                        'audience': 'Студенты',
+                        field: value,
+                    }
+                    self.assertEqual(
+                        self.client.post('/api/cases', json=data).status_code, 422,
+                    )
+
+    def test_old_context_fields_are_not_silently_accepted(self):
+        response = self.client.post('/api/cases', json={
+            'title': 'Идея',
+            'description': 'Описание',
+            'audience': 'Студенты',
+            'stage': 'prototype',
+        })
+        self.assertEqual(response.status_code, 422)
+
+    def test_patch_changes_only_supplied_fields(self):
+        case = self.create_case()
+        response = self.client.patch(
+            f"/api/cases/{case['id']}", json={'title': 'Новое название'},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['title'], 'Новое название')
+        self.assertEqual(response.json()['audience'], case['audience'])
+        self.assertEqual(response.json()['createdAt'], case['createdAt'])
+
+    def test_patch_rejects_explicit_null(self):
+        case = self.create_case()
+        for field in ('title', 'description', 'audience'):
+            self.assertEqual(
+                self.client.patch(
+                    f"/api/cases/{case['id']}", json={field: None},
+                ).status_code,
+                422,
             )
 
-    def test_required_update_fields_cannot_be_null(self):
-        with self.assertRaises(ValidationError):
-            CaseUpdate(stage=None)
+    def test_legacy_nullable_audience_is_serialized_as_string(self):
+        case = Case(title='Старая идея', description='Описание', audience=None)
+        self.db.add(case)
+        self.db.commit()
+        response = self.client.get(f'/api/cases/{case.id}')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['audience'], '')
+        self.assertNotIn('problem', response.json())
+        self.assertNotIn('stage', response.json())
 
+    def test_delete_removes_dependent_runs_and_stages(self):
+        case = self.create_case()
+        self.assertEqual(
+            self.client.post(
+                f"/api/cases/{case['id']}/analysis-runs",
+            ).status_code,
+            201,
+        )
+        response = self.client.delete(f"/api/cases/{case['id']}")
+        self.assertEqual(response.status_code, 204, response.text)
+        self.assertEqual(response.content, b'')
+        self.assertEqual(self.db.query(AnalysisRun).count(), 0)
+        self.assertEqual(self.db.query(AnalysisStage).count(), 0)
+        self.assertEqual(self.client.get('/api/cases').json(), [])
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_unknown_case_returns_documented_404(self):
+        self.assertEqual(
+            self.client.get('/api/cases/999').json(),
+            {'detail': 'Case not found'},
+        )
+        self.assertEqual(self.client.delete('/api/cases/999').status_code, 404)
+
+    def test_cors_allows_local_frontend(self):
+        response = self.client.options('/api/cases', headers={
+            'Origin': 'http://localhost:5173',
+            'Access-Control-Request-Method': 'POST',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers['access-control-allow-origin'],
+            'http://localhost:5173',
+        )

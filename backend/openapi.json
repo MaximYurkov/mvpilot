@@ -3,14 +3,12 @@
   "info": {
     "title": "MVPilot API",
     "description": "Backend API for MVPilot",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "paths": {
     "/api/health": {
       "get": {
-        "tags": [
-          "health"
-        ],
+        "tags": ["health"],
         "summary": "Health Check",
         "operationId": "getHealth",
         "responses": {
@@ -37,9 +35,7 @@
     },
     "/api/cases": {
       "get": {
-        "tags": [
-          "cases"
-        ],
+        "tags": ["cases"],
         "summary": "Get Cases",
         "operationId": "listCases",
         "responses": {
@@ -49,7 +45,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/CaseRead"
+                    "$ref": "#/components/schemas/Case"
                   },
                   "type": "array",
                   "title": "Response Listcases"
@@ -70,16 +66,14 @@
         }
       },
       "post": {
-        "tags": [
-          "cases"
-        ],
+        "tags": ["cases"],
         "summary": "Create Case",
         "operationId": "createCase",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CaseCreate"
+                "$ref": "#/components/schemas/CaseFormValues"
               }
             }
           },
@@ -91,7 +85,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CaseRead"
+                  "$ref": "#/components/schemas/Case"
                 }
               }
             }
@@ -121,9 +115,7 @@
     },
     "/api/cases/{case_id}": {
       "get": {
-        "tags": [
-          "cases"
-        ],
+        "tags": ["cases"],
         "summary": "Get Case",
         "operationId": "getCase",
         "parameters": [
@@ -143,7 +135,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CaseRead"
+                  "$ref": "#/components/schemas/Case"
                 }
               }
             }
@@ -181,9 +173,7 @@
         }
       },
       "patch": {
-        "tags": [
-          "cases"
-        ],
+        "tags": ["cases"],
         "summary": "Update Case",
         "operationId": "updateCase",
         "parameters": [
@@ -213,7 +203,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CaseRead"
+                  "$ref": "#/components/schemas/Case"
                 }
               }
             }
@@ -251,9 +241,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "cases"
-        ],
+        "tags": ["cases"],
         "summary": "Delete Case",
         "operationId": "deleteCase",
         "parameters": [
@@ -306,9 +294,7 @@
     },
     "/api/cases/{case_id}/analysis-runs": {
       "post": {
-        "tags": [
-          "analysis-runs"
-        ],
+        "tags": ["analysis-runs"],
         "summary": "Create Analysis Run",
         "operationId": "createAnalysisRun",
         "parameters": [
@@ -366,9 +352,7 @@
         }
       },
       "get": {
-        "tags": [
-          "analysis-runs"
-        ],
+        "tags": ["analysis-runs"],
         "summary": "Get Case Analysis Runs",
         "operationId": "listCaseAnalysisRuns",
         "parameters": [
@@ -432,9 +416,7 @@
     },
     "/api/analysis-runs/{run_id}": {
       "get": {
-        "tags": [
-          "analysis-runs"
-        ],
+        "tags": ["analysis-runs"],
         "summary": "Get Analysis Run",
         "operationId": "getAnalysisRun",
         "parameters": [
@@ -492,6 +474,115 @@
         }
       }
     },
+    "/api/cases/{case_id}/report": {
+      "get": {
+        "tags": ["reports"],
+        "summary": "Get Case Report",
+        "operationId": "getCaseReport",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/CaseReport"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Getcasereport"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Case not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports": {
+      "get": {
+        "tags": ["reports"],
+        "summary": "List Reports",
+        "description": "The same ID-to-report map shape as the frontend reports.json fixture.",
+        "operationId": "listReports",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/components/schemas/CaseReport"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "type": "object",
+                  "title": "Response Listreports"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/": {
       "get": {
         "summary": "Root",
@@ -521,136 +612,6 @@
   },
   "components": {
     "schemas": {
-      "AnalysisReport": {
-        "properties": {
-          "summary": {
-            "type": "string",
-            "minLength": 1,
-            "title": "Summary"
-          },
-          "analysis_plan": {
-            "items": {
-              "type": "string",
-              "minLength": 1
-            },
-            "type": "array",
-            "minItems": 1,
-            "title": "Analysis Plan"
-          },
-          "assumptions": {
-            "items": {
-              "type": "string",
-              "minLength": 1
-            },
-            "type": "array",
-            "minItems": 1,
-            "title": "Assumptions"
-          },
-          "problem": {
-            "type": "string",
-            "minLength": 1,
-            "title": "Problem"
-          },
-          "target_audience": {
-            "type": "string",
-            "minLength": 1,
-            "title": "Target Audience"
-          },
-          "audience_segments": {
-            "items": {
-              "$ref": "#/components/schemas/AudienceSegment"
-            },
-            "type": "array",
-            "minItems": 1,
-            "title": "Audience Segments"
-          },
-          "value_proposition": {
-            "type": "string",
-            "minLength": 1,
-            "title": "Value Proposition"
-          },
-          "jtbd": {
-            "items": {
-              "$ref": "#/components/schemas/JTBDItem"
-            },
-            "type": "array",
-            "minItems": 1,
-            "title": "Jtbd"
-          },
-          "lean_canvas": {
-            "$ref": "#/components/schemas/LeanCanvas"
-          },
-          "mvp": {
-            "items": {
-              "$ref": "#/components/schemas/MVPFeature"
-            },
-            "type": "array",
-            "minItems": 1,
-            "title": "Mvp"
-          },
-          "backlog": {
-            "items": {
-              "$ref": "#/components/schemas/BacklogItem"
-            },
-            "type": "array",
-            "minItems": 1,
-            "title": "Backlog"
-          },
-          "roadmap": {
-            "items": {
-              "$ref": "#/components/schemas/RoadmapStage"
-            },
-            "type": "array",
-            "minItems": 1,
-            "title": "Roadmap"
-          },
-          "risks": {
-            "items": {
-              "$ref": "#/components/schemas/ProductRisk"
-            },
-            "type": "array",
-            "minItems": 1,
-            "title": "Risks"
-          },
-          "critic_review": {
-            "$ref": "#/components/schemas/CriticReview"
-          },
-          "recommendations": {
-            "items": {
-              "type": "string",
-              "minLength": 1
-            },
-            "type": "array",
-            "minItems": 1,
-            "title": "Recommendations"
-          },
-          "final_report_markdown": {
-            "type": "string",
-            "minLength": 1,
-            "title": "Final Report Markdown"
-          }
-        },
-        "type": "object",
-        "required": [
-          "summary",
-          "analysis_plan",
-          "assumptions",
-          "problem",
-          "target_audience",
-          "audience_segments",
-          "value_proposition",
-          "jtbd",
-          "lean_canvas",
-          "mvp",
-          "backlog",
-          "roadmap",
-          "risks",
-          "critic_review",
-          "recommendations",
-          "final_report_markdown"
-        ],
-        "title": "AnalysisReport"
-      },
       "AnalysisRunRead": {
         "properties": {
           "id": {
@@ -667,7 +628,7 @@
           "result": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/AnalysisReport"
+                "$ref": "#/components/schemas/CaseReport"
               },
               {
                 "type": "null"
@@ -732,13 +693,7 @@
       },
       "AnalysisStageName": {
         "type": "string",
-        "enum": [
-          "planner",
-          "market_analyst",
-          "product_manager",
-          "critic",
-          "editor"
-        ],
+        "enum": ["planner", "market_analyst", "product_manager", "critic", "editor"],
         "title": "AnalysisStageName"
       },
       "AnalysisStageRead": {
@@ -820,146 +775,118 @@
       },
       "AnalysisStatus": {
         "type": "string",
-        "enum": [
-          "pending",
-          "running",
-          "completed",
-          "failed"
-        ],
+        "enum": ["pending", "running", "completed", "failed"],
         "title": "AnalysisStatus"
+      },
+      "Audience": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/SectionStatus"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/Source"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "primarySegment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primarysegment"
+          },
+          "segments": {
+            "items": {
+              "$ref": "#/components/schemas/AudienceSegment"
+            },
+            "type": "array",
+            "title": "Segments"
+          },
+          "jtbd": {
+            "items": {
+              "$ref": "#/components/schemas/JtbdItem"
+            },
+            "type": "array",
+            "title": "Jtbd"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["status", "note", "sources", "primarySegment", "segments", "jtbd"],
+        "title": "Audience"
       },
       "AudienceSegment": {
         "properties": {
           "name": {
             "type": "string",
-            "minLength": 1,
             "title": "Name"
+          },
+          "estimatedShare": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimatedshare"
           },
           "description": {
             "type": "string",
-            "minLength": 1,
             "title": "Description"
           },
           "needs": {
             "items": {
-              "type": "string",
-              "minLength": 1
+              "type": "string"
             },
             "type": "array",
-            "minItems": 1,
             "title": "Needs"
           }
         },
+        "additionalProperties": false,
         "type": "object",
-        "required": [
-          "name",
-          "description",
-          "needs"
-        ],
+        "required": ["name", "estimatedShare", "description", "needs"],
         "title": "AudienceSegment"
       },
-      "BacklogItem": {
+      "BudgetSection": {
         "properties": {
-          "epic": {
+          "name": {
             "type": "string",
-            "minLength": 1,
-            "title": "Epic"
+            "title": "Name"
           },
-          "user_story": {
-            "type": "string",
-            "minLength": 1,
-            "title": "User Story"
+          "recommended": {
+            "type": "number",
+            "title": "Recommended"
           },
-          "acceptance_criteria": {
-            "items": {
-              "type": "string",
-              "minLength": 1
-            },
-            "type": "array",
-            "minItems": 1,
-            "title": "Acceptance Criteria"
-          },
-          "priority": {
-            "$ref": "#/components/schemas/BacklogPriority"
+          "minimum": {
+            "type": "number",
+            "title": "Minimum"
           }
         },
+        "additionalProperties": false,
         "type": "object",
-        "required": [
-          "epic",
-          "user_story",
-          "acceptance_criteria",
-          "priority"
-        ],
-        "title": "BacklogItem"
+        "required": ["name", "recommended", "minimum"],
+        "title": "BudgetSection"
       },
-      "BacklogPriority": {
-        "type": "string",
-        "enum": [
-          "must",
-          "should",
-          "could"
-        ],
-        "title": "BacklogPriority"
-      },
-      "CaseCreate": {
-        "properties": {
-          "title": {
-            "type": "string",
-            "maxLength": 255,
-            "minLength": 1,
-            "title": "Title"
-          },
-          "description": {
-            "type": "string",
-            "minLength": 1,
-            "title": "Description"
-          },
-          "audience": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Audience"
-          },
-          "problem": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Problem"
-          },
-          "stage": {
-            "$ref": "#/components/schemas/CaseStage",
-            "default": "idea"
-          },
-          "analysis_goal": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Analysis Goal"
-          }
-        },
-        "type": "object",
-        "required": [
-          "title",
-          "description"
-        ],
-        "title": "CaseCreate"
-      },
-      "CaseRead": {
+      "Case": {
         "properties": {
           "id": {
             "type": "integer",
@@ -974,76 +901,114 @@
             "title": "Description"
           },
           "audience": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "string",
             "title": "Audience"
           },
-          "problem": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Problem"
-          },
-          "stage": {
-            "$ref": "#/components/schemas/CaseStage"
-          },
-          "analysis_goal": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Analysis Goal"
-          },
-          "created_at": {
+          "createdAt": {
             "type": "string",
             "format": "date-time",
-            "title": "Created At"
+            "title": "Createdat"
           },
-          "updated_at": {
+          "updatedAt": {
             "type": "string",
             "format": "date-time",
-            "title": "Updated At"
+            "title": "Updatedat"
           }
         },
         "type": "object",
-        "required": [
-          "id",
-          "title",
-          "description",
-          "audience",
-          "problem",
-          "stage",
-          "analysis_goal",
-          "created_at",
-          "updated_at"
-        ],
-        "title": "CaseRead"
+        "required": ["id", "title", "description", "audience", "createdAt", "updatedAt"],
+        "title": "Case"
       },
-      "CaseStage": {
-        "type": "string",
-        "enum": [
-          "idea",
-          "validation",
-          "prototype",
+      "CaseFormValues": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Description"
+          },
+          "audience": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Audience"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["title", "description", "audience"],
+        "title": "CaseFormValues"
+      },
+      "CaseReport": {
+        "properties": {
+          "overview": {
+            "$ref": "#/components/schemas/Overview"
+          },
+          "market": {
+            "$ref": "#/components/schemas/Market"
+          },
+          "audience": {
+            "$ref": "#/components/schemas/Audience"
+          },
+          "competitors": {
+            "$ref": "#/components/schemas/Competitors"
+          },
+          "leanCanvas": {
+            "$ref": "#/components/schemas/LeanCanvas"
+          },
+          "mvp": {
+            "$ref": "#/components/schemas/Mvp"
+          },
+          "roadmap": {
+            "$ref": "#/components/schemas/Roadmap"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/Metrics"
+          },
+          "finance": {
+            "$ref": "#/components/schemas/Finance"
+          },
+          "risks": {
+            "$ref": "#/components/schemas/Risks"
+          },
+          "nextSteps": {
+            "$ref": "#/components/schemas/NextSteps"
+          },
+          "markdown": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Markdown"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "overview",
+          "market",
+          "audience",
+          "competitors",
+          "leanCanvas",
           "mvp",
-          "launched"
+          "roadmap",
+          "metrics",
+          "finance",
+          "risks",
+          "nextSteps",
+          "markdown"
         ],
-        "title": "CaseStage"
+        "title": "CaseReport"
       },
       "CaseUpdate": {
         "properties": {
@@ -1051,7 +1016,7 @@
             "anyOf": [
               {
                 "type": "string",
-                "maxLength": 255,
+                "maxLength": 50,
                 "minLength": 1
               },
               {
@@ -1064,6 +1029,7 @@
             "anyOf": [
               {
                 "type": "string",
+                "maxLength": 200,
                 "minLength": 1
               },
               {
@@ -1075,85 +1041,148 @@
           "audience": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
               },
               {
                 "type": "null"
               }
             ],
             "title": "Audience"
-          },
-          "problem": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Problem"
-          },
-          "stage": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/CaseStage"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "analysis_goal": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Analysis Goal"
           }
         },
+        "additionalProperties": false,
         "type": "object",
         "title": "CaseUpdate"
       },
-      "CriticReview": {
+      "Competitor": {
         "properties": {
-          "issues": {
-            "items": {
-              "type": "string",
-              "minLength": 1
-            },
-            "type": "array",
-            "title": "Issues"
+          "name": {
+            "type": "string",
+            "title": "Name"
           },
-          "contradictions": {
-            "items": {
-              "type": "string",
-              "minLength": 1
-            },
-            "type": "array",
-            "title": "Contradictions"
+          "x": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "X"
           },
-          "recommendations": {
+          "y": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Y"
+          },
+          "isProduct": {
+            "type": "boolean",
+            "title": "Isproduct"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "strengths": {
             "items": {
-              "type": "string",
-              "minLength": 1
+              "type": "string"
             },
             "type": "array",
-            "minItems": 1,
-            "title": "Recommendations"
+            "title": "Strengths"
+          },
+          "weaknesses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Weaknesses"
           }
         },
+        "additionalProperties": false,
         "type": "object",
-        "required": [
-          "issues",
-          "contradictions",
-          "recommendations"
-        ],
-        "title": "CriticReview"
+        "required": ["name", "x", "y", "isProduct", "url", "strengths", "weaknesses"],
+        "title": "Competitor"
+      },
+      "CompetitorAxes": {
+        "properties": {
+          "x": {
+            "type": "string",
+            "title": "X"
+          },
+          "y": {
+            "type": "string",
+            "title": "Y"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["x", "y"],
+        "title": "CompetitorAxes"
+      },
+      "Competitors": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/SectionStatus"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/Source"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "axes": {
+            "$ref": "#/components/schemas/CompetitorAxes"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Competitor"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "comparison": {
+            "items": {
+              "$ref": "#/components/schemas/FeatureComparison"
+            },
+            "type": "array",
+            "title": "Comparison"
+          },
+          "swot": {
+            "$ref": "#/components/schemas/Swot"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["status", "note", "sources", "axes", "items", "comparison", "swot"],
+        "title": "Competitors"
       },
       "ErrorResponse": {
         "properties": {
@@ -1163,10 +1192,159 @@
           }
         },
         "type": "object",
-        "required": [
-          "detail"
-        ],
+        "required": ["detail"],
         "title": "ErrorResponse"
+      },
+      "FeatureComparison": {
+        "properties": {
+          "feature": {
+            "type": "string",
+            "title": "Feature"
+          },
+          "product": {
+            "type": "boolean",
+            "title": "Product"
+          },
+          "competitor1": {
+            "type": "boolean",
+            "title": "Competitor1"
+          },
+          "competitor2": {
+            "type": "boolean",
+            "title": "Competitor2"
+          },
+          "competitor3": {
+            "type": "boolean",
+            "title": "Competitor3"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["feature", "product", "competitor1", "competitor2", "competitor3"],
+        "title": "FeatureComparison"
+      },
+      "Finance": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/SectionStatus"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/Source"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "figures": {
+            "items": {
+              "$ref": "#/components/schemas/FinanceFigure"
+            },
+            "type": "array",
+            "title": "Figures"
+          },
+          "recommendedTotal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recommendedtotal"
+          },
+          "budgetSections": {
+            "items": {
+              "$ref": "#/components/schemas/BudgetSection"
+            },
+            "type": "array",
+            "title": "Budgetsections"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["status", "note", "sources", "figures", "recommendedTotal", "budgetSections"],
+        "title": "Finance"
+      },
+      "FinanceFigure": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["key", "label", "value", "unit", "note"],
+        "title": "FinanceFigure"
+      },
+      "FunnelStage": {
+        "properties": {
+          "stage": {
+            "type": "string",
+            "title": "Stage"
+          },
+          "value": {
+            "type": "number",
+            "title": "Value"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["stage", "value", "target"],
+        "title": "FunnelStage"
       },
       "HTTPValidationError": {
         "properties": {
@@ -1181,208 +1359,896 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
-      "JTBDItem": {
+      "JtbdItem": {
         "properties": {
           "situation": {
             "type": "string",
-            "minLength": 1,
             "title": "Situation"
           },
           "motivation": {
             "type": "string",
-            "minLength": 1,
             "title": "Motivation"
           },
-          "expected_outcome": {
+          "outcome": {
             "type": "string",
-            "minLength": 1,
-            "title": "Expected Outcome"
+            "title": "Outcome"
+          },
+          "priority": {
+            "$ref": "#/components/schemas/JtbdPriority"
           }
         },
+        "additionalProperties": false,
         "type": "object",
-        "required": [
-          "situation",
-          "motivation",
-          "expected_outcome"
-        ],
-        "title": "JTBDItem"
+        "required": ["situation", "motivation", "outcome", "priority"],
+        "title": "JtbdItem"
+      },
+      "JtbdPriority": {
+        "type": "string",
+        "enum": ["high", "medium", "low"],
+        "title": "JtbdPriority"
       },
       "LeanCanvas": {
         "properties": {
+          "status": {
+            "$ref": "#/components/schemas/SectionStatus"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/Source"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
           "problems": {
             "items": {
-              "type": "string",
-              "minLength": 1
+              "type": "string"
             },
             "type": "array",
-            "minItems": 1,
             "title": "Problems"
-          },
-          "customer_segments": {
-            "items": {
-              "type": "string",
-              "minLength": 1
-            },
-            "type": "array",
-            "minItems": 1,
-            "title": "Customer Segments"
-          },
-          "unique_value_proposition": {
-            "type": "string",
-            "minLength": 1,
-            "title": "Unique Value Proposition"
           },
           "solutions": {
             "items": {
-              "type": "string",
-              "minLength": 1
+              "type": "string"
             },
             "type": "array",
-            "minItems": 1,
             "title": "Solutions"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "advantage": {
+            "type": "string",
+            "title": "Advantage"
+          },
+          "segments": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Segments"
+          },
+          "metrics": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Metrics"
           },
           "channels": {
             "items": {
-              "type": "string",
-              "minLength": 1
+              "type": "string"
             },
             "type": "array",
-            "minItems": 1,
             "title": "Channels"
           },
-          "revenue_streams": {
+          "costs": {
             "items": {
-              "type": "string",
-              "minLength": 1
+              "type": "string"
             },
             "type": "array",
-            "minItems": 1,
-            "title": "Revenue Streams"
+            "title": "Costs"
           },
-          "cost_structure": {
+          "revenue": {
             "items": {
-              "type": "string",
-              "minLength": 1
+              "type": "string"
             },
             "type": "array",
-            "minItems": 1,
-            "title": "Cost Structure"
-          },
-          "key_metrics": {
-            "items": {
-              "type": "string",
-              "minLength": 1
-            },
-            "type": "array",
-            "minItems": 1,
-            "title": "Key Metrics"
-          },
-          "unfair_advantage": {
-            "type": "string",
-            "minLength": 1,
-            "title": "Unfair Advantage"
+            "title": "Revenue"
           }
         },
+        "additionalProperties": false,
         "type": "object",
         "required": [
+          "status",
+          "note",
+          "sources",
           "problems",
-          "customer_segments",
-          "unique_value_proposition",
           "solutions",
+          "value",
+          "advantage",
+          "segments",
+          "metrics",
           "channels",
-          "revenue_streams",
-          "cost_structure",
-          "key_metrics",
-          "unfair_advantage"
+          "costs",
+          "revenue"
         ],
         "title": "LeanCanvas"
       },
-      "MVPFeature": {
+      "Market": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/SectionStatus"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/Source"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "tam": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MarketSize"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sam": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MarketSize"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "som": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MarketSize"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "method": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["bottom-up", "top-down"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Method"
+          },
+          "methodComment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Methodcomment"
+          },
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Assumptions"
+          },
+          "dynamics": {
+            "items": {
+              "$ref": "#/components/schemas/MarketDynamics"
+            },
+            "type": "array",
+            "title": "Dynamics"
+          },
+          "dynamicsSource": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dynamicssource"
+          },
+          "trends": {
+            "items": {
+              "$ref": "#/components/schemas/MarketTrend"
+            },
+            "type": "array",
+            "title": "Trends"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "note",
+          "sources",
+          "tam",
+          "sam",
+          "som",
+          "method",
+          "methodComment",
+          "assumptions",
+          "dynamics",
+          "dynamicsSource",
+          "trends"
+        ],
+        "title": "Market"
+      },
+      "MarketDynamics": {
+        "properties": {
+          "year": {
+            "type": "number",
+            "title": "Year"
+          },
+          "value": {
+            "type": "number",
+            "title": "Value"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["year", "value"],
+        "title": "MarketDynamics"
+      },
+      "MarketSize": {
+        "properties": {
+          "value": {
+            "type": "number",
+            "title": "Value"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["value", "unit", "label"],
+        "title": "MarketSize"
+      },
+      "MarketTrend": {
         "properties": {
           "name": {
             "type": "string",
-            "minLength": 1,
+            "title": "Name"
+          },
+          "direction": {
+            "type": "string",
+            "enum": ["up", "flat", "down"],
+            "title": "Direction"
+          },
+          "comment": {
+            "type": "string",
+            "title": "Comment"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["name", "direction", "comment"],
+        "title": "MarketTrend"
+      },
+      "MetricNode": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "children": {
+            "items": {
+              "$ref": "#/components/schemas/MetricNode"
+            },
+            "type": "array",
+            "title": "Children"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["name"],
+        "title": "MetricNode"
+      },
+      "Metrics": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/SectionStatus"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/Source"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "northStar": {
+            "$ref": "#/components/schemas/NorthStar"
+          },
+          "tree": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MetricNode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "funnel": {
+            "items": {
+              "$ref": "#/components/schemas/FunnelStage"
+            },
+            "type": "array",
+            "title": "Funnel"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["status", "note", "sources", "northStar", "tree", "funnel"],
+        "title": "Metrics"
+      },
+      "Mvp": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/SectionStatus"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/Source"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "features": {
+            "items": {
+              "$ref": "#/components/schemas/MvpFeature"
+            },
+            "type": "array",
+            "title": "Features"
+          },
+          "userFlow": {
+            "items": {
+              "$ref": "#/components/schemas/UserFlowStep"
+            },
+            "type": "array",
+            "title": "Userflow"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["status", "note", "sources", "features", "userFlow"],
+        "title": "Mvp"
+      },
+      "MvpFeature": {
+        "properties": {
+          "name": {
+            "type": "string",
             "title": "Name"
           },
           "description": {
             "type": "string",
-            "minLength": 1,
             "title": "Description"
           },
           "priority": {
-            "$ref": "#/components/schemas/BacklogPriority"
+            "$ref": "#/components/schemas/Priority"
           }
         },
+        "additionalProperties": false,
         "type": "object",
-        "required": [
-          "name",
-          "description",
-          "priority"
-        ],
-        "title": "MVPFeature"
+        "required": ["name", "description", "priority"],
+        "title": "MvpFeature"
       },
-      "ProductRisk": {
+      "NextStep": {
         "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
           "description": {
             "type": "string",
-            "minLength": 1,
             "title": "Description"
           },
-          "level": {
-            "$ref": "#/components/schemas/RiskLevel"
+          "priority": {
+            "$ref": "#/components/schemas/Priority"
+          },
+          "effort": {
+            "type": "string",
+            "enum": ["low", "medium", "high"],
+            "title": "Effort"
+          },
+          "partner": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Partner"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["title", "description", "priority", "effort", "partner"],
+        "title": "NextStep"
+      },
+      "NextSteps": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/SectionStatus"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/Source"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/NextStep"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["status", "note", "sources", "items"],
+        "title": "NextSteps"
+      },
+      "NorthStar": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["name", "value", "unit"],
+        "title": "NorthStar"
+      },
+      "Overview": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/SectionStatus"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/Source"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "idea": {
+            "type": "string",
+            "title": "Idea"
+          },
+          "readiness": {
+            "items": {
+              "$ref": "#/components/schemas/Readiness"
+            },
+            "type": "array",
+            "title": "Readiness"
+          },
+          "tiles": {
+            "items": {
+              "$ref": "#/components/schemas/OverviewTile"
+            },
+            "type": "array",
+            "title": "Tiles"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["status", "note", "sources", "idea", "readiness", "tiles"],
+        "title": "Overview"
+      },
+      "OverviewTile": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "value": {
+            "type": "number",
+            "title": "Value"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["label", "value", "unit"],
+        "title": "OverviewTile"
+      },
+      "Partner": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["name", "note", "url"],
+        "title": "Partner"
+      },
+      "Priority": {
+        "type": "string",
+        "enum": ["must", "should", "could", "wont"],
+        "title": "Priority"
+      },
+      "Readiness": {
+        "properties": {
+          "axis": {
+            "type": "string",
+            "title": "Axis"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "comment": {
+            "type": "string",
+            "title": "Comment"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["axis", "score", "comment"],
+        "title": "Readiness"
+      },
+      "Risk": {
+        "properties": {
+          "cell": {
+            "type": "integer",
+            "enum": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+            "title": "Cell"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
           },
           "mitigation": {
             "type": "string",
-            "minLength": 1,
             "title": "Mitigation"
+          },
+          "cheapCheck": {
+            "type": "string",
+            "title": "Cheapcheck"
           }
         },
+        "additionalProperties": false,
         "type": "object",
-        "required": [
-          "description",
-          "level",
-          "mitigation"
-        ],
-        "title": "ProductRisk"
+        "required": ["cell", "description", "mitigation", "cheapCheck"],
+        "title": "Risk"
       },
-      "RiskLevel": {
-        "type": "string",
-        "enum": [
-          "low",
-          "medium",
-          "high"
-        ],
-        "title": "RiskLevel"
+      "Risks": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/SectionStatus"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/Source"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Risk"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["status", "note", "sources", "items"],
+        "title": "Risks"
+      },
+      "Roadmap": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/SectionStatus"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/Source"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/RoadmapStage"
+            },
+            "type": "array",
+            "title": "Stages"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["status", "note", "sources", "stages"],
+        "title": "Roadmap"
       },
       "RoadmapStage": {
         "properties": {
           "name": {
             "type": "string",
-            "minLength": 1,
             "title": "Name"
           },
           "goal": {
             "type": "string",
-            "minLength": 1,
             "title": "Goal"
           },
-          "deliverables": {
+          "startMonth": {
+            "type": "number",
+            "title": "Startmonth"
+          },
+          "duration": {
+            "type": "number",
+            "title": "Duration"
+          },
+          "results": {
             "items": {
-              "type": "string",
-              "minLength": 1
+              "type": "string"
             },
             "type": "array",
-            "minItems": 1,
-            "title": "Deliverables"
+            "title": "Results"
           }
         },
+        "additionalProperties": false,
         "type": "object",
-        "required": [
-          "name",
-          "goal",
-          "deliverables"
-        ],
+        "required": ["name", "goal", "startMonth", "duration", "results"],
         "title": "RoadmapStage"
+      },
+      "SectionStatus": {
+        "type": "string",
+        "enum": ["ready", "partial", "insufficient_data", "not_applicable"],
+        "title": "SectionStatus"
+      },
+      "Source": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "publisher": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publisher"
+          },
+          "publishedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publishedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["id", "title", "url", "publisher", "publishedAt"],
+        "title": "Source"
+      },
+      "Swot": {
+        "properties": {
+          "strengths": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Strengths"
+          },
+          "weaknesses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Weaknesses"
+          },
+          "opportunities": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Opportunities"
+          },
+          "threats": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Threats"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["strengths", "weaknesses", "opportunities", "threats"],
+        "title": "Swot"
+      },
+      "UserFlowStep": {
+        "properties": {
+          "step": {
+            "type": "string",
+            "title": "Step"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["step", "description"],
+        "title": "UserFlowStep"
       },
       "ValidationError": {
         "properties": {
@@ -1417,11 +2283,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
+        "required": ["loc", "msg", "type"],
         "title": "ValidationError"
       }
     }

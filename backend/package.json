@@ -1,0 +1,16 @@
+{
+  "name": "mvpilot-backend-contract",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "api:generate": "openapi-ts",
+    "api:check": "node scripts/check_frontend_contract.mjs"
+  },
+  "devDependencies": {
+    "@hey-api/openapi-ts": "0.99.0",
+    "typescript": "~6.0.2"
+  },
+  "overrides": {
+    "js-yaml": "^4.3.2"
+  }
+}

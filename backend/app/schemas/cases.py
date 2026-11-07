@@ -1,47 +1,47 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
-
-from app.core.cases import CaseStage
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
-class CaseCreate(BaseModel):
-    title: str = Field(min_length=1, max_length=255)
-    description: str = Field(min_length=1)
-    audience: str | None = None
-    problem: str | None = None
-    stage: CaseStage = CaseStage.IDEA
-    analysis_goal: str | None = None
+class CaseFormValues(BaseModel):
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+
+    title: str = Field(min_length=1, max_length=50)
+    description: str = Field(min_length=1, max_length=200)
+    audience: str = Field(min_length=1, max_length=200)
 
 
 class CaseUpdate(BaseModel):
-    title: str | None = Field(default=None, min_length=1, max_length=255)
-    description: str | None = Field(default=None, min_length=1)
-    audience: str | None = None
-    problem: str | None = None
-    stage: CaseStage | None = None
-    analysis_goal: str | None = None
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+
+    title: str | None = Field(default=None, min_length=1, max_length=50)
+    description: str | None = Field(default=None, min_length=1, max_length=200)
+    audience: str | None = Field(default=None, min_length=1, max_length=200)
 
     @model_validator(mode='after')
-    def reject_null_for_required_fields(self):
-        required_fields = ('title', 'description', 'stage')
-
-        for field_name in required_fields:
-            if field_name in self.model_fields_set and getattr(self, field_name) is None:
+    def reject_explicit_null(self):
+        for field_name in self.model_fields_set:
+            if getattr(self, field_name) is None:
                 raise ValueError(f'{field_name} cannot be null')
-
         return self
 
 
-class CaseRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+class Case(BaseModel):
+    model_config = ConfigDict(
+        from_attributes=True,
+        populate_by_name=True,
+        serialize_by_alias=True,
+    )
 
     id: int
     title: str
     description: str
-    audience: str | None
-    problem: str | None
-    stage: CaseStage
-    analysis_goal: str | None
-    created_at: datetime
-    updated_at: datetime
+    audience: str
+    created_at: datetime = Field(alias='createdAt')
+    updated_at: datetime = Field(alias='updatedAt')
+
+    @field_validator('audience', mode='before')
+    @classmethod
+    def normalize_legacy_audience(cls, value):
+        # Old database rows allowed NULL; the frontend now expects a string.
+        return '' if value is None else value

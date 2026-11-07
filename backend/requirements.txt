@@ -1,5 +1,6 @@
 fastapi
 uvicorn[standard]
 pydantic-settings
+pydantic>=2.11,<3
 sqlalchemy
 alembic

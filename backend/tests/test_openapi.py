@@ -78,6 +78,38 @@ class OpenAPITestCase(unittest.TestCase):
             list(default_cors_origins),
         )
 
+    def test_report_routes_publish_the_frontend_contract(self):
+        schemas = app.openapi()['components']['schemas']
+        report = schemas['CaseReport']
+        self.assertEqual(set(report['properties']), {
+            'overview', 'market', 'audience', 'competitors', 'leanCanvas',
+            'mvp', 'roadmap', 'metrics', 'finance', 'risks', 'nextSteps',
+            'markdown',
+        })
+        self.assertEqual(set(report['required']), set(report['properties']))
+        self.assertEqual(set(schemas['Case']['properties']), {
+            'id', 'title', 'description', 'audience', 'createdAt', 'updatedAt',
+        })
+        self.assertEqual(set(schemas['CaseFormValues']['required']), {
+            'title', 'description', 'audience',
+        })
+        self.assertEqual(set(schemas['Priority']['enum']), {
+            'must', 'should', 'could', 'wont',
+        })
+        self.assertIn('getCaseReport', [
+            operation['operationId']
+            for item in app.openapi()['paths'].values()
+            for operation in item.values()
+        ])
+
+    def test_nullable_is_different_from_optional(self):
+        schemas = app.openapi()['components']['schemas']
+        self.assertIn('tam', schemas['Market']['required'])
+        self.assertIn({'type': 'null'}, schemas['Market']['properties']['tam']['anyOf'])
+        node = schemas.get('MetricNode', schemas.get('MetricNode-Output'))
+        self.assertNotIn('children', node['required'])
+        self.assertEqual(node['properties']['children']['type'], 'array')
+
 
 if __name__ == '__main__':
     unittest.main()
